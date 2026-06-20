@@ -1,71 +1,975 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>ABS Blogger Admin</title>
-
-<script src="https://accounts.google.com/gsi/client"></script>
-
-<style>
-body{
-font-family:Arial;
-background:#f4f4f4;
-padding:30px;
-text-align:center;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blogger Admin · OAuth2</title>
+  <!-- Font Awesome for icons (optional but nice) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* === style.css (embedded for single-file demo, but kept as section) === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+    body {
+      background: #f4f7fc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .app {
+      max-width: 1280px;
+      width: 100%;
+      background: white;
+      border-radius: 2rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+      padding: 2rem 2rem 2.5rem;
+      transition: 0.2s;
+    }
+    /* header */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      gap: 1rem 0.5rem;
+    }
+    .header h1 {
+      font-weight: 600;
+      font-size: 1.8rem;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .header h1 i {
+      color: #3b82f6;
+    }
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .user-area .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      color: #1e293b;
+    }
+    .btn {
+      background: white;
+      border: 1px solid #d1d9e6;
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #1e293b;
+      background: #f8fafc;
+    }
+    .btn-primary {
+      background: #1e293b;
+      border: 1px solid #1e293b;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #0f172a;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+    .btn-success {
+      background: #059669;
+      border: 1px solid #059669;
+      color: white;
+    }
+    .btn-success:hover {
+      background: #047857;
+    }
+    .btn-danger {
+      background: #dc2626;
+      border: 1px solid #dc2626;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+    .btn-warning {
+      background: #d97706;
+      border: 1px solid #d97706;
+      color: white;
+    }
+    .btn-warning:hover {
+      background: #b45309;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    /* search & filter */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .search-box {
+      display: flex;
+      flex: 1 1 260px;
+      background: #f1f5f9;
+      border-radius: 60px;
+      padding: 0.2rem 0.2rem 0.2rem 1.2rem;
+      align-items: center;
+    }
+    .search-box i {
+      color: #64748b;
+    }
+    .search-box input {
+      border: none;
+      background: transparent;
+      padding: 0.6rem 0.8rem;
+      width: 100%;
+      outline: none;
+      font-size: 0.95rem;
+    }
+    .search-box button {
+      background: #1e293b;
+      border: none;
+      color: white;
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .search-box button:hover {
+      background: #0f172a;
+    }
+    .action-group {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    /* post list */
+    .post-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .post-item {
+      background: white;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+      border: 1px solid #e9edf2;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.1s;
+    }
+    .post-item:hover {
+      border-color: #cbd5e1;
+      background: #fafcff;
+    }
+    .post-info {
+      flex: 2 1 300px;
+    }
+    .post-info h3 {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin-bottom: 0.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .post-info .meta {
+      font-size: 0.8rem;
+      color: #475569;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+      margin-top: 0.2rem;
+    }
+    .badge {
+      background: #e2e8f0;
+      padding: 0.1rem 0.6rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #1e293b;
+    }
+    .badge.draft {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+    .badge.published {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .post-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    .post-actions .btn {
+      padding: 0.25rem 0.9rem;
+      font-size: 0.8rem;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #64748b;
+    }
+    /* modal (simple overlay) */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.4);
+      backdrop-filter: blur(3px);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      padding: 1rem;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-card {
+      background: white;
+      max-width: 600px;
+      width: 100%;
+      border-radius: 2rem;
+      padding: 2rem 2rem 2.2rem;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+      animation: fadeUp 0.2s;
+    }
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .modal-card h2 {
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      color: #0f172a;
+    }
+    .modal-card label {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: #1e293b;
+      display: block;
+      margin: 0.8rem 0 0.2rem;
+    }
+    .modal-card input, .modal-card textarea, .modal-card select {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      border: 1px solid #d1d9e6;
+      border-radius: 60px;
+      font-size: 0.95rem;
+      background: #fafcff;
+    }
+    .modal-card textarea {
+      border-radius: 1.2rem;
+      min-height: 80px;
+      resize: vertical;
+    }
+    .modal-card .row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .modal-card .row > * {
+      flex: 1;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.8rem;
+      margin-top: 1.8rem;
+    }
+    /* responsive */
+    @media (max-width: 640px) {
+      .app { padding: 1.2rem; }
+      .header h1 { font-size: 1.4rem; }
+      .post-item { flex-direction: column; align-items: stretch; gap: 0.7rem; }
+      .post-actions { justify-content: flex-start; }
+    }
+    /* utility */
+    .hidden { display: none !important; }
+    .mt-1 { margin-top: 0.5rem; }
+    
+    .toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
 }
 
-button{
-padding:12px 20px;
-font-size:18px;
-cursor:pointer;
+.toast {
+  background: #333;
+  color: #fff;
+  padding: 12px 18px;
+  margin-top: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
 }
 
-#status{
-margin-top:20px;
-font-weight:bold;
+.toast.success {
+  background: #16a34a;
 }
-</style>
 
+.toast.error {
+  background: #dc2626;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  margin: 30px auto;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #2563eb;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+  </style>
 </head>
-
 <body>
+<div class="toast-container" id="toastContainer"></div>
 
-<h2>ABS Blogger Admin</h2>
+<div class="app" id="app">
 
-<button onclick="login()">
-Login With Google
-</button>
+  <!-- header -->
+  <div class="header">
+    <h1><i class="fab fa-blogger-b"></i> Blogger Admin</h1>
+    <div class="user-area" id="userArea">
+      <span id="userName" class="hidden" style="font-weight:500;">User</span>
+      <div class="avatar" id="avatarBox">👤</div>
+      <button class="btn btn-primary" id="loginBtn"><i class="fab fa-google"></i> Sign in</button>
+      <button class="btn btn-outline hidden" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </div>
 
-<div id="status"></div>
+  <!-- toolbar -->
+  <div class="toolbar" id="toolbar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search by title or description...">
+      <button id="searchBtn"><i class="fas fa-arrow-right"></i></button>
+    </div>
+    <div class="action-group">
+      <button class="btn btn-success" id="newPostBtn"><i class="fas fa-plus"></i> New Post</button>
+      <button class="btn btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+    </div>
+  </div>
 
+  <!-- post list -->
+  <div id="postListContainer">
+    <div class="post-list" id="postList"></div>
+    <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- MODAL (create / edit) -->
+<div class="modal-overlay" id="postModal">
+  <div class="modal-card">
+    <h2 id="modalTitle">Create Post</h2>
+    <label>Title</label>
+    <input type="text" id="postTitle" placeholder="Post title">
+
+    <label>Content (HTML)</label>
+    <textarea id="postContent" placeholder="Write your post content..."></textarea>
+
+    <div class="row">
+      <div>
+        <label>Labels (comma separated)</label>
+        <input type="text" id="postLabels" placeholder="tech, lifestyle">
+      </div>
+      <div>
+        <label>Status</label>
+        <select id="postStatus">
+          <option value="DRAFT">Draft</option>
+          <option value="PUBLISHED">Published</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="modalCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="modalSaveBtn"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JavaScript modules (inlined for single file) ===== -->
 <script>
+  // ==================== config.js ====================
+  // ==================== config.js ====================
+// ==================== config.js ====================
+const CONFIG = {
+  CLIENT_ID: '146025507938-3mnp25rn9ps0gi191ov3c6741n6fj9n6.apps.googleusercontent.com',
+  BLOG_ID: '4609132939861743156',
+  SCOPES: 'https://www.googleapis.com/auth/blogger',
+};
 
-const CLIENT_ID="146025507938-3mnp25rn9ps0gi191ov3c6741n6fj9n6.apps.googleusercontent.com";
+// ==================== auth.js (GIS) ====================
+const Auth = (() => {
+  let tokenClient = null;
+  let accessToken = localStorage.getItem('blogger_access_token') || null;
+  let tokenExpiry = parseInt(localStorage.getItem('blogger_token_expiry') || '0');
+  let currentUser = null;
+  let isSignedIn = false;
 
-const tokenClient=
-google.accounts.oauth2.initTokenClient({
+  function init() {
+    return new Promise((resolve) => {
+      if (typeof google === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.onload = () => resolve(initTokenClient());
+        document.head.appendChild(script);
+      } else {
+        resolve(initTokenClient());
+      }
+    });
+  }
 
-client_id:CLIENT_ID,
+  function initTokenClient() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CONFIG.CLIENT_ID,
+      scope: CONFIG.SCOPES,
+      callback: (resp) => {
+        if (resp.access_token) {
+          accessToken = resp.access_token;
+          const expiresIn = resp.expires_in || 3600;
+          tokenExpiry = Date.now() + (expiresIn * 1000) - 60000;
+          localStorage.setItem('blogger_access_token', accessToken);
+          localStorage.setItem('blogger_token_expiry', String(tokenExpiry));
+          isSignedIn = true;
+          fetchUserInfo();
+        }
+      },
+    });
+    if (accessToken && Date.now() < tokenExpiry) {
+      isSignedIn = true;
+      fetchUserInfo();
+    } else if (accessToken) {
+      tokenClient.requestAccessToken({ prompt: 'none' });
+    }
+    return tokenClient;
+  }
 
-scope:"https://www.googleapis.com/auth/blogger",
+  function fetchUserInfo() {
+    if (!accessToken) return;
+    fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    })
+      .then(r => r.json())
+      .then(data => { currentUser = data; isSignedIn = true; })
+      .catch(() => { isSignedIn = false; });
+  }
 
-callback:(response)=>{
+  function signIn() {
+    if (!tokenClient) return;
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+  }
 
-window.accessToken=response.access_token;
+  function signOut() {
+    if (accessToken) {
+      fetch(`https://oauth2.googleapis.com/revoke?token=${accessToken}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }).catch(() => {});
+    }
+    localStorage.removeItem('blogger_access_token');
+    localStorage.removeItem('blogger_token_expiry');
+    accessToken = null;
+    tokenExpiry = 0;
+    isSignedIn = false;
+    currentUser = null;
+  }
 
-document.getElementById("status").innerHTML=
-"Login Success";
-}
+  function getToken() {
+    if (accessToken && Date.now() < tokenExpiry) {
+      return accessToken;
+    }
+    if (tokenClient && accessToken) {
+      tokenClient.requestAccessToken({ prompt: 'none' });
+    }
+    return null;
+  }
 
-});
+  function refreshToken() {
+    return new Promise((resolve) => {
+      if (!tokenClient) {
+        resolve(null);
+        return;
+      }
+      const originalCallback = tokenClient.callback;
+      tokenClient.callback = (resp) => {
+        if (resp.access_token) {
+          accessToken = resp.access_token;
+          const expiresIn = resp.expires_in || 3600;
+          tokenExpiry = Date.now() + (expiresIn * 1000) - 60000;
+          localStorage.setItem('blogger_access_token', accessToken);
+          localStorage.setItem('blogger_token_expiry', String(tokenExpiry));
+          isSignedIn = true;
+          resolve(accessToken);
+        } else {
+          resolve(null);
+        }
+        if (originalCallback) originalCallback(resp);
+      };
+      tokenClient.requestAccessToken({ prompt: 'none' });
+    });
+  }
 
-function login(){
+  function isAuthenticated() {
+    return isSignedIn && !!getToken();
+  }
 
-tokenClient.requestAccessToken();
+  function getUser() { return currentUser; }
 
-}
+  return { init, signIn, signOut, getToken, refreshToken, isAuthenticated, getUser };
+})();
 
+// ==================== blogger.js ====================
+// Official Blogger API v3 implementation
+const Blogger = (() => {
+  const BLOG_ID = CONFIG.BLOG_ID;
+  const API_BASE = `https://www.googleapis.com/blogger/v3/blogs/${BLOG_ID}`;
+
+  function getHeaders() {
+    const token = Auth.getToken();
+    if (!token) throw new Error('No access token available');
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+  }
+
+  async function apiFetch(url, options = {}) {
+    try {
+      const res = await fetch(url, { ...options, headers: getHeaders() });
+
+      if (res.status === 401) {
+        const newToken = await Auth.refreshToken();
+        if (newToken) {
+          const retryRes = await fetch(url, {
+            ...options,
+            headers: {
+              'Authorization': `Bearer ${newToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          if (!retryRes.ok) {
+            const err = await retryRes.text();
+            let errorMessage = err;
+            try {
+              const parsed = JSON.parse(err);
+              errorMessage = parsed.error?.message || parsed.error || err;
+            } catch (e) {}
+            throw new Error(errorMessage || 'API error after refresh');
+          }
+          return retryRes.json();
+        } else {
+          throw new Error('Session expired. Please sign in again.');
+        }
+      }
+
+      if (!res.ok) {
+        const err = await res.text();
+        let errorMessage = err;
+        try {
+          const parsed = JSON.parse(err);
+          errorMessage = parsed.error?.message || parsed.error || err;
+        } catch (e) {}
+        throw new Error(errorMessage || 'API error');
+      }
+
+      return res.json();
+    } catch (error) {
+      if (error.message.includes('No access token')) {
+        throw new Error('Please sign in to continue');
+      }
+      throw error;
+    }
+  }
+
+  // GET /blogs/{blogId}/posts
+  async function listPosts({ pageToken = null, search = '' } = {}) {
+    let url = `${API_BASE}/posts?fetchBodies=true&fetchImages=true&status=all&maxResults=10`;
+    if (pageToken) url += `&pageToken=${encodeURIComponent(pageToken)}`;
+    if (search) url += `&q=${encodeURIComponent(search)}`;
+    const data = await apiFetch(url);
+    return {
+      items: data.items || [],
+      nextPageToken: data.nextPageToken || null,
+      prevPageToken: data.prevPageToken || null,
+    };
+  }
+
+  // POST /blogs/{blogId}/posts (posts.insert)
+  async function createPost(post) {
+    const url = `${API_BASE}/posts`;
+    return apiFetch(url, {
+      method: 'POST',
+      body: JSON.stringify(post)
+    });
+  }
+
+  // PUT /blogs/{blogId}/posts/{postId} (posts.update)
+  async function updatePost(postId, post) {
+    const url = `${API_BASE}/posts/${postId}`;
+    return apiFetch(url, {
+      method: 'PUT',
+      body: JSON.stringify(post)
+    });
+  }
+
+  // DELETE /blogs/{blogId}/posts/{postId} (posts.delete)
+  async function deletePost(postId) {
+    const url = `${API_BASE}/posts/${postId}`;
+    await apiFetch(url, { method: 'DELETE' });
+    return true;
+  }
+
+  // POST /blogs/{blogId}/posts/{postId}/publish (posts.publish)
+  async function publishPost(postId) {
+    const url = `${API_BASE}/posts/${postId}/publish`;
+    return apiFetch(url, { method: 'POST' });
+  }
+
+  // POST /blogs/{blogId}/posts/{postId}/revert (posts.revert)
+  async function revertPost(postId) {
+    const url = `${API_BASE}/posts/${postId}/revert`;
+    return apiFetch(url, { method: 'POST' });
+  }
+
+  return { listPosts, createPost, updatePost, deletePost, publishPost, revertPost };
+})();
+
+// ==================== dashboard.js ====================
+(function Dashboard() {
+  const postList = document.getElementById('postList');
+  const pagination = document.getElementById('pagination');
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const userName = document.getElementById('userName');
+  const avatarBox = document.getElementById('avatarBox');
+  const searchInput = document.getElementById('searchInput');
+  const searchBtn = document.getElementById('searchBtn');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const newPostBtn = document.getElementById('newPostBtn');
+  const modal = document.getElementById('postModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const postTitle = document.getElementById('postTitle');
+  const postContent = document.getElementById('postContent');
+  const postLabels = document.getElementById('postLabels');
+  const postStatus = document.getElementById('postStatus');
+  const modalSaveBtn = document.getElementById('modalSaveBtn');
+  const modalCancelBtn = document.getElementById('modalCancelBtn');
+  const toastContainer = document.getElementById('toastContainer');
+
+  let posts = [];
+  let nextPageToken = null;
+  let prevPageToken = null;
+  let currentPageToken = null;
+  let editingPostId = null;
+
+  function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${message}`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+  }
+
+  function setLoading(loading) {
+    if (loading) {
+      postList.innerHTML = `<div class="spinner"></div>`;
+    }
+  }
+
+  function renderPosts(items) {
+    if (!items || items.length === 0) {
+      postList.innerHTML = `<div class="empty-state"><i class="fas fa-edit" style="font-size:2rem;opacity:0.3;"></i><p>No posts found</p></div>`;
+      return;
+    }
+    postList.innerHTML = items.map(p => {
+      const status = p.status || 'DRAFT';
+      const labels = (p.labels || []).join(', ');
+      return `
+      <div class="post-item" data-id="${p.id}">
+        <div class="post-info">
+          <h3>${p.title || 'Untitled'} <span class="badge ${status.toLowerCase()}">${status}</span></h3>
+          <div class="meta">
+            <span><i class="far fa-calendar-alt"></i> ${new Date(p.updated || p.published).toLocaleDateString()}</span>
+            ${labels ? `<span><i class="fas fa-tags"></i> ${labels}</span>` : ''}
+            ${p.url ? `<span><i class="fas fa-link"></i> <a href="${p.url}" target="_blank" style="color:#475569;">view</a></span>` : ''}
+          </div>
+        </div>
+        <div class="post-actions">
+          <button class="btn btn-outline btn-sm edit-btn" data-id="${p.id}"><i class="fas fa-edit"></i> Edit</button>
+          <button class="btn btn-warning btn-sm draft-toggle" data-id="${p.id}" data-status="${status}"><i class="fas fa-pen-fancy"></i> ${status === 'DRAFT' ? 'Publish' : 'Draft'}</button>
+          <button class="btn btn-danger btn-sm delete-btn" data-id="${p.id}"><i class="fas fa-trash-alt"></i> Delete</button>
+        </div>
+      </div>
+    `}).join('');
+
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const post = posts.find(p => p.id === id);
+        if (post) openEditModal(post);
+      });
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Delete this post permanently?')) return;
+        try {
+          const id = btn.dataset.id;
+          await Blogger.deletePost(id);
+          showToast('Post deleted successfully', 'success');
+          await loadPosts();
+        } catch (e) {
+          showToast('Delete failed: ' + e.message, 'error');
+        }
+      });
+    });
+
+    document.querySelectorAll('.draft-toggle').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const currentStatus = btn.dataset.status;
+        try {
+          if (currentStatus === 'DRAFT') {
+            // Use posts.publish
+            await Blogger.publishPost(id);
+            showToast('Post published successfully', 'success');
+          } else {
+            // Use posts.revert
+            await Blogger.revertPost(id);
+            showToast('Post reverted to draft', 'success');
+          }
+          await loadPosts();
+        } catch (e) {
+          showToast('Status change failed: ' + e.message, 'error');
+        }
+      });
+    });
+  }
+
+  function renderPagination(nextToken, prevToken) {
+    pagination.innerHTML = '';
+    if (prevToken) {
+      const prev = document.createElement('button');
+      prev.innerText = '← Previous';
+      prev.onclick = () => {
+        currentPageToken = prevToken;
+        loadPosts(currentPageToken);
+      };
+      pagination.appendChild(prev);
+    }
+    if (nextToken) {
+      const next = document.createElement('button');
+      next.innerText = 'Next →';
+      next.onclick = () => {
+        currentPageToken = nextToken;
+        loadPosts(currentPageToken);
+      };
+      pagination.appendChild(next);
+    }
+  }
+
+  async function loadPosts(pageToken = null) {
+    if (!Auth.isAuthenticated()) {
+      postList.innerHTML = `<div class="empty-state"><i class="fas fa-lock"></i><p>Please sign in with Google</p></div>`;
+      pagination.innerHTML = '';
+      return;
+    }
+    setLoading(true);
+    try {
+      const search = searchInput.value.trim();
+      const result = await Blogger.listPosts({
+        pageToken: pageToken || currentPageToken,
+        search
+      });
+      posts = result.items;
+      nextPageToken = result.nextPageToken;
+      prevPageToken = result.prevPageToken;
+      renderPosts(posts);
+      renderPagination(nextPageToken, prevPageToken);
+    } catch (e) {
+      showToast('Error loading posts: ' + e.message, 'error');
+      postList.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${e.message}</p></div>`;
+    }
+    setLoading(false);
+  }
+
+  function openEditModal(post = null) {
+    if (post) {
+      editingPostId = post.id;
+      modalTitle.innerText = 'Edit Post';
+      postTitle.value = post.title || '';
+      postContent.value = post.content || '';
+      postLabels.value = (post.labels || []).join(', ');
+      postStatus.value = post.status || 'DRAFT';
+    } else {
+      editingPostId = null;
+      modalTitle.innerText = 'Create Post';
+      postTitle.value = '';
+      postContent.value = '';
+      postLabels.value = '';
+      postStatus.value = 'DRAFT';
+    }
+    modal.classList.add('active');
+  }
+
+  function closeModal() {
+    modal.classList.remove('active');
+  }
+
+  async function savePost() {
+    const title = postTitle.value.trim();
+    const content = postContent.value.trim();
+    const labels = postLabels.value.split(',').map(s => s.trim()).filter(Boolean);
+    const status = postStatus.value;
+
+    if (!title) {
+      showToast('Title is required', 'error');
+      return;
+    }
+    if (!content) {
+      showToast('Content is required', 'error');
+      return;
+    }
+
+    const payload = {
+      title: title,
+      content: content,
+      labels: labels,
+      status: status
+    };
+
+    try {
+      if (editingPostId) {
+        await Blogger.updatePost(editingPostId, payload);
+        showToast('Post updated successfully', 'success');
+      } else {
+        await Blogger.createPost(payload);
+        showToast('Post created successfully', 'success');
+      }
+      closeModal();
+      await loadPosts();
+    } catch (e) {
+      showToast('Save failed: ' + e.message, 'error');
+    }
+  }
+
+  function updateUI() {
+    const signedIn = Auth.isAuthenticated();
+    const user = Auth.getUser();
+    if (signedIn && user) {
+      loginBtn.classList.add('hidden');
+      logoutBtn.classList.remove('hidden');
+      userName.classList.remove('hidden');
+      userName.innerText = user.name || 'User';
+      avatarBox.innerText = user.name ? user.name[0].toUpperCase() : '👤';
+      loadPosts();
+    } else {
+      loginBtn.classList.remove('hidden');
+      logoutBtn.classList.add('hidden');
+      userName.classList.add('hidden');
+      avatarBox.innerText = '👤';
+      postList.innerHTML = `<div class="empty-state"><i class="fab fa-google"></i><p>Sign in to manage your blog</p></div>`;
+      pagination.innerHTML = '';
+    }
+  }
+
+  // Event Listeners
+  loginBtn.addEventListener('click', () => {
+    Auth.signIn();
+    const check = setInterval(() => {
+      if (Auth.isAuthenticated()) {
+        clearInterval(check);
+        updateUI();
+      }
+    }, 500);
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    Auth.signOut();
+    updateUI();
+  });
+
+  searchBtn.addEventListener('click', () => {
+    currentPageToken = null;
+    loadPosts(null);
+  });
+
+  searchInput.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') {
+      currentPageToken = null;
+      loadPosts(null);
+    }
+  });
+
+  refreshBtn.addEventListener('click', () => {
+    currentPageToken = null;
+    loadPosts(null);
+  });
+
+  newPostBtn.addEventListener('click', () => openEditModal(null));
+
+  modalCancelBtn.addEventListener('click', closeModal);
+  modalSaveBtn.addEventListener('click', savePost);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Initialize
+  Auth.init().then(() => {
+    updateUI();
+    setInterval(async () => {
+      if (Auth.isAuthenticated()) {
+        await Auth.refreshToken();
+      }
+    }, 300000);
+  });
+})();
 </script>
-
 </body>
 </html>
