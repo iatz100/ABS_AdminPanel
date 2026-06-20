@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ABS Blogger Admin</title>
+
+<script src="https://accounts.google.com/gsi/client"></script>
+
+<style>
+body{
+font-family:Arial;
+background:#f4f4f4;
+padding:30px;
+text-align:center;
+}
+
+button{
+padding:12px 20px;
+font-size:18px;
+cursor:pointer;
+}
+
+#status{
+margin-top:20px;
+font-weight:bold;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>ABS Blogger Admin</h2>
+
+<button onclick="login()">
+Login With Google
+</button>
+
+<div id="status"></div>
+
+<script>
+
+const CLIENT_ID="146025507938-3mnp25rn9ps0gi191ov3c6741n6fj9n6.apps.googleusercontent.com";
+
+const tokenClient=
+google.accounts.oauth2.initTokenClient({
+
+client_id:CLIENT_ID,
+
+scope:"https://www.googleapis.com/auth/blogger",
+
+callback:(response)=>{
+
+window.accessToken=response.access_token;
+
+document.getElementById("status").innerHTML=
+"Login Success";
+}
+
+});
+
+function login(){
+
+tokenClient.requestAccessToken();
+
+}
+
+</script>
+
+</body>
+</html>
