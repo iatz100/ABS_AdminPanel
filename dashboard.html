@@ -1,474 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blogger Admin · OAuth2</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    /* আপনার existing styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    }
-    body {
-      background: #f4f7fc;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-    .app {
-      max-width: 1280px;
-      width: 100%;
-      background: white;
-      border-radius: 2rem;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-      padding: 2rem 2rem 2.5rem;
-      transition: 0.2s;
-    }
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      gap: 1rem 0.5rem;
-    }
-    .header h1 {
-      font-weight: 600;
-      font-size: 1.8rem;
-      color: #1e293b;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .header h1 i {
-      color: #3b82f6;
-    }
-    .user-area {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .user-area .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 40px;
-      background: #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 500;
-      color: #1e293b;
-    }
-    .btn {
-      background: white;
-      border: 1px solid #d1d9e6;
-      padding: 0.5rem 1.2rem;
-      border-radius: 60px;
-      font-weight: 500;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: 0.15s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #1e293b;
-      background: #f8fafc;
-    }
-    .btn-primary {
-      background: #1e293b;
-      border: 1px solid #1e293b;
-      color: white;
-    }
-    .btn-primary:hover {
-      background: #0f172a;
-    }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid #cbd5e1;
-    }
-    .btn-outline:hover {
-      background: #f1f5f9;
-    }
-    .btn-success {
-      background: #059669;
-      border: 1px solid #059669;
-      color: white;
-    }
-    .btn-success:hover {
-      background: #047857;
-    }
-    .btn-danger {
-      background: #dc2626;
-      border: 1px solid #dc2626;
-      color: white;
-    }
-    .btn-danger:hover {
-      background: #b91c1c;
-    }
-    .btn-warning {
-      background: #d97706;
-      border: 1px solid #d97706;
-      color: white;
-    }
-    .btn-warning:hover {
-      background: #b45309;
-    }
-    .btn:disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .search-box {
-      display: flex;
-      flex: 1 1 260px;
-      background: #f1f5f9;
-      border-radius: 60px;
-      padding: 0.2rem 0.2rem 0.2rem 1.2rem;
-      align-items: center;
-    }
-    .search-box i {
-      color: #64748b;
-    }
-    .search-box input {
-      border: none;
-      background: transparent;
-      padding: 0.6rem 0.8rem;
-      width: 100%;
-      outline: none;
-      font-size: 0.95rem;
-    }
-    .search-box button {
-      background: #1e293b;
-      border: none;
-      color: white;
-      padding: 0.5rem 1.2rem;
-      border-radius: 60px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: 0.1s;
-    }
-    .search-box button:hover {
-      background: #0f172a;
-    }
-    .action-group {
-      display: flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
-    .post-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    .post-item {
-      background: white;
-      border-radius: 1.2rem;
-      padding: 1.2rem 1.5rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-      border: 1px solid #e9edf2;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      transition: 0.1s;
-    }
-    .post-item:hover {
-      border-color: #cbd5e1;
-      background: #fafcff;
-    }
-    .post-info {
-      flex: 2 1 300px;
-    }
-    .post-info h3 {
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: #0f172a;
-      margin-bottom: 0.25rem;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .post-info .meta {
-      font-size: 0.8rem;
-      color: #475569;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      align-items: center;
-      margin-top: 0.2rem;
-    }
-    .badge {
-      background: #e2e8f0;
-      padding: 0.1rem 0.6rem;
-      border-radius: 40px;
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: #1e293b;
-    }
-    .badge.draft {
-      background: #fef9c3;
-      color: #854d0e;
-    }
-    .badge.published {
-      background: #d1fae5;
-      color: #065f46;
-    }
-    .post-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      align-items: center;
-      margin-top: 0.5rem;
-    }
-    .post-actions .btn {
-      padding: 0.25rem 0.9rem;
-      font-size: 0.8rem;
-    }
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #64748b;
-    }
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,0.4);
-      backdrop-filter: blur(3px);
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      padding: 1rem;
-    }
-    .modal-overlay.active {
-      display: flex;
-    }
-    .modal-card {
-      background: white;
-      max-width: 600px;
-      width: 100%;
-      border-radius: 2rem;
-      padding: 2rem 2rem 2.2rem;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.2);
-      animation: fadeUp 0.2s;
-    }
-    @keyframes fadeUp {
-      0% { opacity: 0; transform: translateY(10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    .modal-card h2 {
-      font-weight: 600;
-      margin-bottom: 1.2rem;
-      color: #0f172a;
-    }
-    .modal-card label {
-      font-weight: 500;
-      font-size: 0.9rem;
-      color: #1e293b;
-      display: block;
-      margin: 0.8rem 0 0.2rem;
-    }
-    .modal-card input, .modal-card textarea, .modal-card select {
-      width: 100%;
-      padding: 0.6rem 1rem;
-      border: 1px solid #d1d9e6;
-      border-radius: 60px;
-      font-size: 0.95rem;
-      background: #fafcff;
-    }
-    .modal-card textarea {
-      border-radius: 1.2rem;
-      min-height: 80px;
-      resize: vertical;
-    }
-    .modal-card .row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .modal-card .row > * {
-      flex: 1;
-    }
-    .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.8rem;
-      margin-top: 1.8rem;
-    }
-    @media (max-width: 640px) {
-      .app { padding: 1.2rem; }
-      .header h1 { font-size: 1.4rem; }
-      .post-item { flex-direction: column; align-items: stretch; gap: 0.7rem; }
-      .post-actions { justify-content: flex-start; }
-    }
-    .hidden { display: none !important; }
-    
-    .toast-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 9999;
-    }
-    .toast {
-      background: #333;
-      color: #fff;
-      padding: 12px 18px;
-      margin-top: 10px;
-      border-radius: 8px;
-      font-size: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.2);
-      animation: slideIn 0.3s ease;
-    }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    .toast.success { background: #16a34a; }
-    .toast.error { background: #dc2626; }
-    .toast.info { background: #2563eb; }
-    
-    .spinner {
-      width: 32px;
-      height: 32px;
-      margin: 30px auto;
-      border: 4px solid #e5e7eb;
-      border-top: 4px solid #2563eb;
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    .pagination {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-    .pagination button {
-      padding: 0.5rem 1.5rem;
-      border: 1px solid #d1d9e6;
-      background: white;
-      border-radius: 60px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: 0.15s;
-    }
-    .pagination button:hover {
-      background: #f1f5f9;
-    }
-
-    /* Loading overlay */
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(255,255,255,0.9);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .loading-overlay.active {
-      display: flex;
-    }
-    .loading-overlay p {
-      color: #1e293b;
-      font-weight: 500;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Blogger Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
+        body { background: #f4f7fc; min-height: 100vh; display: flex; justify-content: center; padding: 1.5rem; }
+        .app { max-width: 1280px; width: 100%; background: white; border-radius: 2rem; padding: 2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.06); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .header h1 { font-size: 1.8rem; color: #1e293b; display: flex; align-items: center; gap: 0.5rem; }
+        .header h1 i { color: #3b82f6; }
+        .user-area { display: flex; align-items: center; gap: 1rem; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .btn { padding: 0.5rem 1.2rem; border-radius: 60px; border: 1px solid #d1d9e6; background: white; cursor: pointer; font-weight: 500; transition: 0.15s; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn:hover { background: #f1f5f9; }
+        .btn-success { background: #059669; color: white; border-color: #059669; }
+        .btn-success:hover { background: #047857; }
+        .btn-danger { background: #dc2626; color: white; border-color: #dc2626; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-warning { background: #d97706; color: white; border-color: #d97706; }
+        .btn-warning:hover { background: #b45309; }
+        .btn-outline { background: transparent; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; justify-content: space-between; }
+        .search-box { display: flex; flex: 1; background: #f1f5f9; border-radius: 60px; padding: 0.2rem 0.2rem 0.2rem 1.2rem; align-items: center; min-width: 200px; }
+        .search-box input { border: none; background: transparent; padding: 0.6rem 0.8rem; width: 100%; outline: none; }
+        .search-box button { background: #1e293b; border: none; color: white; padding: 0.5rem 1.2rem; border-radius: 60px; cursor: pointer; }
+        .search-box button:hover { background: #0f172a; }
+        .action-group { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .post-list { display: flex; flex-direction: column; gap: 1rem; }
+        .post-item { background: white; border-radius: 1.2rem; padding: 1.2rem 1.5rem; border: 1px solid #e9edf2; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; transition: 0.15s; }
+        .post-item:hover { border-color: #cbd5e1; background: #fafcff; }
+        .post-info { flex: 2 1 300px; }
+        .post-info h3 { font-weight: 600; font-size: 1.1rem; color: #0f172a; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .post-info .meta { font-size: 0.8rem; color: #475569; display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 0.2rem; }
+        .badge { padding: 0.1rem 0.6rem; border-radius: 40px; font-size: 0.7rem; font-weight: 500; }
+        .badge.draft { background: #fef9c3; color: #854d0e; }
+        .badge.published { background: #d1fae5; color: #065f46; }
+        .post-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+        .post-actions .btn { padding: 0.25rem 0.9rem; font-size: 0.8rem; }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: #64748b; }
+        .spinner { width: 32px; height: 32px; margin: 30px auto; border: 4px solid #e5e7eb; border-top: 4px solid #2563eb; border-radius: 50%; animation: spin .8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 999; padding: 1rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-card { background: white; max-width: 600px; width: 100%; border-radius: 2rem; padding: 2rem; animation: fadeUp 0.2s; }
+        @keyframes fadeUp { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+        .modal-card h2 { margin-bottom: 1.2rem; color: #0f172a; }
+        .modal-card label { display: block; margin: 0.8rem 0 0.2rem; font-weight: 500; font-size: 0.9rem; }
+        .modal-card input, .modal-card textarea, .modal-card select { width: 100%; padding: 0.6rem 1rem; border: 1px solid #d1d9e6; border-radius: 60px; font-size: 0.95rem; background: #fafcff; }
+        .modal-card textarea { border-radius: 1.2rem; min-height: 80px; resize: vertical; }
+        .modal-card .row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .modal-card .row > * { flex: 1; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 1.8rem; }
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+        .toast { padding: 12px 18px; margin-top: 10px; border-radius: 8px; font-size: 14px; color: white; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast.success { background: #16a34a; }
+        .toast.error { background: #dc2626; }
+        .toast.info { background: #2563eb; }
+        .pagination { display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; }
+        .pagination button { padding: 0.5rem 1.5rem; border: 1px solid #d1d9e6; background: white; border-radius: 60px; cursor: pointer; font-weight: 500; }
+        .pagination button:hover { background: #f1f5f9; }
+        @media (max-width: 640px) { .app { padding: 1.2rem; } .header h1 { font-size: 1.4rem; } .post-item { flex-direction: column; align-items: stretch; gap: 0.7rem; } }
+    </style>
 </head>
 <body>
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <p>Authenticating... Please wait</p>
-</div>
 
 <div class="toast-container" id="toastContainer"></div>
 
-<div class="app" id="app">
-  <!-- Header -->
-  <div class="header">
-    <h1><i class="fab fa-blogger-b"></i> Blogger Admin</h1>
-    <div class="user-area" id="userArea">
-      <span id="userName" class="hidden" style="font-weight:500;">User</span>
-      <div class="avatar" id="avatarBox">👤</div>
-      <button class="btn btn-outline hidden" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-      <button class="btn btn-primary" id="loginBtn"><i class="fas fa-google"></i> Sign In</button>
+<div class="app">
+    <!-- Header -->
+    <div class="header">
+        <h1><i class="fab fa-blogger-b"></i> Blogger Admin</h1>
+        <div class="user-area">
+            <span id="userName" style="font-weight: 500;">User</span>
+            <div class="avatar" id="avatarBox">👤</div>
+            <button class="btn btn-outline" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Toolbar -->
-  <div class="toolbar" id="toolbar">
-    <div class="search-box">
-      <i class="fas fa-search"></i>
-      <input type="text" id="searchInput" placeholder="Search by title or description...">
-      <button id="searchBtn"><i class="fas fa-arrow-right"></i></button>
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search posts...">
+            <button id="searchBtn"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="action-group">
+            <button class="btn btn-success" id="newPostBtn"><i class="fas fa-plus"></i> New Post</button>
+            <button class="btn btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
     </div>
-    <div class="action-group">
-      <button class="btn btn-success" id="newPostBtn"><i class="fas fa-plus"></i> New Post</button>
-      <button class="btn btn-outline" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
-    </div>
-  </div>
 
-  <!-- Post List -->
-  <div id="postListContainer">
+    <!-- Post List -->
     <div class="post-list" id="postList">
-      <div class="empty-state">
-        <i class="fas fa-google" style="font-size:2rem;opacity:0.3;"></i>
-        <p>Please sign in with Google to manage your blog</p>
-      </div>
+        <div class="spinner"></div>
     </div>
+    
+    <!-- Pagination -->
     <div class="pagination" id="pagination"></div>
-  </div>
 </div>
 
 <!-- Modal -->
 <div class="modal-overlay" id="postModal">
-  <div class="modal-card">
-    <h2 id="modalTitle">Create Post</h2>
-    <label>Title *</label>
-    <input type="text" id="postTitle" placeholder="Post title">
-
-    <label>Content (HTML) *</label>
-    <textarea id="postContent" placeholder="Write your post content..."></textarea>
-
-    <div class="row">
-      <div>
-        <label>Labels (comma separated)</label>
-        <input type="text" id="postLabels" placeholder="tech, lifestyle">
-      </div>
-      <div>
-        <label>Status</label>
-        <select id="postStatus">
-          <option value="DRAFT">Draft</option>
-          <option value="PUBLISHED">Published</option>
-        </select>
-      </div>
+    <div class="modal-card">
+        <h2 id="modalTitle">Create Post</h2>
+        <label>Title *</label>
+        <input type="text" id="postTitle" placeholder="Post title">
+        <label>Content (HTML) *</label>
+        <textarea id="postContent" placeholder="Write your post content..."></textarea>
+        <div class="row">
+            <div>
+                <label>Labels (comma separated)</label>
+                <input type="text" id="postLabels" placeholder="tech, lifestyle">
+            </div>
+            <div>
+                <label>Status</label>
+                <select id="postStatus">
+                    <option value="DRAFT">Draft</option>
+                    <option value="PUBLISHED">Published</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="modalCancelBtn">Cancel</button>
+            <button class="btn btn-success" id="modalSaveBtn"><i class="fas fa-save"></i> Save</button>
+        </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" id="modalCancelBtn">Cancel</button>
-      <button class="btn btn-primary" id="modalSaveBtn"><i class="fas fa-save"></i> Save</button>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -476,676 +136,426 @@
 //  CONFIGURATION
 // ============================================================
 const CONFIG = {
-  // ⚠️ আপনার Google Cloud Console থেকে Client ID দিন
-  CLIENT_ID: '146025507938-3mnp25rn9ps0gi191ov3c6741n6fj9n6.apps.googleusercontent.com',
-  
-  // ⚠️ আপনার Blogger Blog ID দিন
-  BLOG_ID: '4609132939861743156',
-  
-  SCOPES: 'https://www.googleapis.com/auth/blogger',
+    CLIENT_ID: '146025507938-3mnp25rn9ps0gi191ov3c6741n6fj9n6.apps.googleusercontent.com',
+    BLOG_ID: '4609132939861743156',
 };
 
 // ============================================================
-//  AUTH MODULE - FIXED VERSION
+//  AUTH - Check token
 // ============================================================
-const Auth = (() => {
-  let tokenClient = null;
-  let accessToken = null;
-  let currentUser = null;
-  let isSignedIn = false;
-  let initPromise = null;
-
-  // Check for existing token on load
-  function loadToken() {
-    const savedToken = localStorage.getItem('blogger_access_token');
-    const savedExpiry = parseInt(localStorage.getItem('blogger_token_expiry') || '0');
-    
-    if (savedToken && savedExpiry > Date.now()) {
-      accessToken = savedToken;
-      isSignedIn = true;
-      return true;
-    }
-    return false;
-  }
-
-  function init() {
-    if (initPromise) return initPromise;
-    
-    initPromise = new Promise((resolve, reject) => {
-      // Load existing token
-      const hasToken = loadToken();
-      
-      if (typeof google === 'undefined') {
-        const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
-        script.onload = () => {
-          try {
-            initTokenClient();
-            if (hasToken) {
-              fetchUserInfo().then(() => {
-                document.dispatchEvent(new Event('authChange'));
-                resolve(true);
-              }).catch(() => {
-                resolve(false);
-              });
-            } else {
-              resolve(true);
-            }
-          } catch (e) {
-            reject(e);
-          }
-        };
-        script.onerror = () => reject('Failed to load Google Identity Services');
-        document.head.appendChild(script);
-      } else {
-        initTokenClient();
-        if (hasToken) {
-          fetchUserInfo().then(() => {
-            document.dispatchEvent(new Event('authChange'));
-            resolve(true);
-          }).catch(() => {
-            resolve(false);
-          });
-        } else {
-          resolve(true);
+const Auth = {
+    getToken() {
+        const token = localStorage.getItem('blogger_access_token');
+        const expiry = parseInt(localStorage.getItem('blogger_token_expiry') || '0');
+        
+        if (!token || expiry <= Date.now()) {
+            window.location.href = 'index.html';
+            return null;
         }
-      }
-    });
+        return token;
+    },
     
-    return initPromise;
-  }
-
-  function initTokenClient() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CONFIG.CLIENT_ID,
-      scope: CONFIG.SCOPES,
-      callback: (resp) => {
-        console.log('Token callback received:', resp);
-        if (resp.access_token) {
-          handleTokenResponse(resp);
-        } else if (resp.error) {
-          console.error('Token error:', resp.error);
-          isSignedIn = false;
-          document.dispatchEvent(new Event('authChange'));
-        }
-      },
-    });
-    return tokenClient;
-  }
-
-  function handleTokenResponse(resp) {
-    accessToken = resp.access_token;
-    const expiresIn = resp.expires_in || 3600;
-    const expiry = Date.now() + (expiresIn * 1000) - 60000;
-    
-    localStorage.setItem('blogger_access_token', accessToken);
-    localStorage.setItem('blogger_token_expiry', String(expiry));
-    isSignedIn = true;
-    
-    // Hide loading overlay
-    document.getElementById('loadingOverlay').classList.remove('active');
-    
-    fetchUserInfo().then(() => {
-      document.dispatchEvent(new Event('authChange'));
-    });
-  }
-
-  async function fetchUserInfo() {
-    if (!accessToken) return null;
-    
-    try {
-      const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-      
-      if (!response.ok) throw new Error('Failed to fetch user');
-      
-      const data = await response.json();
-      currentUser = data;
-      isSignedIn = true;
-      return data;
-    } catch (error) {
-      console.error('Fetch user error:', error);
-      isSignedIn = false;
-      localStorage.removeItem('blogger_access_token');
-      localStorage.removeItem('blogger_token_expiry');
-      accessToken = null;
-      return null;
-    }
-  }
-
-  function signIn() {
-    if (!tokenClient) {
-      init().then(() => {
-        document.getElementById('loadingOverlay').classList.add('active');
-        tokenClient.requestAccessToken({ prompt: 'consent' });
-      });
-    } else {
-      document.getElementById('loadingOverlay').classList.add('active');
-      tokenClient.requestAccessToken({ prompt: 'consent' });
-    }
-  }
-
-  function signOut() {
-    if (accessToken) {
-      fetch(`https://oauth2.googleapis.com/revoke?token=${accessToken}`, {
-        method: 'POST'
-      }).catch(() => {});
-    }
-    
-    localStorage.removeItem('blogger_access_token');
-    localStorage.removeItem('blogger_token_expiry');
-    accessToken = null;
-    isSignedIn = false;
-    currentUser = null;
-    
-    document.dispatchEvent(new Event('authChange'));
-  }
-
-  function refreshToken() {
-    return new Promise((resolve) => {
-      if (!tokenClient) {
-        resolve(null);
-        return;
-      }
-      tokenClient.requestAccessToken({ prompt: 'none' });
-      resolve(accessToken);
-    });
-  }
-
-  function getToken() {
-    if (!accessToken) return null;
-    const expiry = parseInt(localStorage.getItem('blogger_token_expiry') || '0');
-    if (expiry <= Date.now()) {
-      // Token expired, try to refresh
-      refreshToken();
-      return null;
-    }
-    return accessToken;
-  }
-
-  function isAuthenticated() {
-    return isSignedIn && !!getToken();
-  }
-
-  function getUser() { return currentUser; }
-
-  return { 
-    init, 
-    signIn, 
-    signOut, 
-    getToken, 
-    refreshToken, 
-    isAuthenticated, 
-    getUser 
-  };
-})();
-
-// ============================================================
-//  BLOGGER API MODULE
-// ============================================================
-const Blogger = (() => {
-  const BLOG_ID = CONFIG.BLOG_ID;
-  const API_BASE = `https://www.googleapis.com/blogger/v3/blogs/${BLOG_ID}`;
-
-  function getHeaders() {
-    const token = Auth.getToken();
-    if (!token) throw new Error('No access token available');
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    };
-  }
-
-  async function apiFetch(url, options = {}) {
-    try {
-      let response = await fetch(url, { ...options, headers: getHeaders() });
-
-      if (response.status === 401) {
-        await Auth.refreshToken();
-        response = await fetch(url, { 
-          ...options, 
-          headers: getHeaders() 
-        });
-      }
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        let errorMessage = errorData;
+    async getUser() {
         try {
-          const parsed = JSON.parse(errorData);
-          errorMessage = parsed.error?.message || parsed.error || errorData;
-        } catch (e) {}
-        throw new Error(errorMessage || 'API request failed');
-      }
-
-      return response.json();
-    } catch (error) {
-      if (error.message.includes('No access token')) {
-        throw new Error('Please sign in to continue');
-      }
-      throw error;
+            const token = this.getToken();
+            if (!token) return null;
+            
+            const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            if (!response.ok) throw new Error('Failed to fetch user');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching user:', error);
+            window.location.href = 'index.html';
+            return null;
+        }
+    },
+    
+    signOut() {
+        const token = localStorage.getItem('blogger_access_token');
+        if (token) {
+            fetch(`https://oauth2.googleapis.com/revoke?token=${token}`, {
+                method: 'POST'
+            }).catch(() => {});
+        }
+        localStorage.removeItem('blogger_access_token');
+        localStorage.removeItem('blogger_token_expiry');
+        window.location.href = 'index.html';
     }
-  }
-
-  async function listPosts({ pageToken = null, search = '' } = {}) {
-    let url = `${API_BASE}/posts?fetchBodies=true&fetchImages=true&status=all&maxResults=10`;
-    if (pageToken) url += `&pageToken=${encodeURIComponent(pageToken)}`;
-    if (search) url += `&q=${encodeURIComponent(search)}`;
-    const data = await apiFetch(url);
-    return {
-      items: data.items || [],
-      nextPageToken: data.nextPageToken || null,
-      prevPageToken: data.prevPageToken || null,
-    };
-  }
-
-  async function createPost(post) {
-    const url = `${API_BASE}/posts`;
-    return apiFetch(url, {
-      method: 'POST',
-      body: JSON.stringify(post)
-    });
-  }
-
-  async function updatePost(postId, post) {
-    const url = `${API_BASE}/posts/${postId}`;
-    return apiFetch(url, {
-      method: 'PUT',
-      body: JSON.stringify(post)
-    });
-  }
-
-  async function deletePost(postId) {
-    const url = `${API_BASE}/posts/${postId}`;
-    await apiFetch(url, { method: 'DELETE' });
-    return true;
-  }
-
-  async function publishPost(postId) {
-    const url = `${API_BASE}/posts/${postId}/publish`;
-    return apiFetch(url, { method: 'POST' });
-  }
-
-  async function revertPost(postId) {
-    const url = `${API_BASE}/posts/${postId}/revert`;
-    return apiFetch(url, { method: 'POST' });
-  }
-
-  return { listPosts, createPost, updatePost, deletePost, publishPost, revertPost };
-})();
+};
 
 // ============================================================
-//  DASHBOARD UI - FIXED VERSION
+//  BLOGGER API
+// ============================================================
+const Blogger = {
+    async apiFetch(url, options = {}) {
+        const token = Auth.getToken();
+        if (!token) throw new Error('No token');
+        
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+        
+        if (!response.ok) {
+            const error = await response.text();
+            let message = error;
+            try {
+                const parsed = JSON.parse(error);
+                message = parsed.error?.message || parsed.error || error;
+            } catch (e) {}
+            throw new Error(message || 'API request failed');
+        }
+        
+        return response.json();
+    },
+    
+    async listPosts({ pageToken = null, search = '' } = {}) {
+        let url = `https://www.googleapis.com/blogger/v3/blogs/${CONFIG.BLOG_ID}/posts?fetchBodies=true&status=all&maxResults=10`;
+        if (pageToken) url += `&pageToken=${encodeURIComponent(pageToken)}`;
+        if (search) url += `&q=${encodeURIComponent(search)}`;
+        
+        const data = await this.apiFetch(url);
+        return {
+            items: data.items || [],
+            nextPageToken: data.nextPageToken || null,
+            prevPageToken: data.prevPageToken || null,
+        };
+    },
+    
+    async createPost(post) {
+        const url = `https://www.googleapis.com/blogger/v3/blogs/${CONFIG.BLOG_ID}/posts`;
+        return this.apiFetch(url, {
+            method: 'POST',
+            body: JSON.stringify(post)
+        });
+    },
+    
+    async updatePost(postId, post) {
+        const url = `https://www.googleapis.com/blogger/v3/blogs/${CONFIG.BLOG_ID}/posts/${postId}`;
+        return this.apiFetch(url, {
+            method: 'PUT',
+            body: JSON.stringify(post)
+        });
+    },
+    
+    async deletePost(postId) {
+        const url = `https://www.googleapis.com/blogger/v3/blogs/${CONFIG.BLOG_ID}/posts/${postId}`;
+        await this.apiFetch(url, { method: 'DELETE' });
+        return true;
+    },
+    
+    async publishPost(postId) {
+        const url = `https://www.googleapis.com/blogger/v3/blogs/${CONFIG.BLOG_ID}/posts/${postId}/publish`;
+        return this.apiFetch(url, { method: 'POST' });
+    },
+    
+    async revertPost(postId) {
+        const url = `https://www.googleapis.com/blogger/v3/blogs/${CONFIG.BLOG_ID}/posts/${postId}/revert`;
+        return this.apiFetch(url, { method: 'POST' });
+    }
+};
+
+// ============================================================
+//  DASHBOARD UI
 // ============================================================
 (function Dashboard() {
-  // DOM Elements
-  const postList = document.getElementById('postList');
-  const pagination = document.getElementById('pagination');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const loginBtn = document.getElementById('loginBtn');
-  const userName = document.getElementById('userName');
-  const avatarBox = document.getElementById('avatarBox');
-  const searchInput = document.getElementById('searchInput');
-  const searchBtn = document.getElementById('searchBtn');
-  const refreshBtn = document.getElementById('refreshBtn');
-  const newPostBtn = document.getElementById('newPostBtn');
-  const modal = document.getElementById('postModal');
-  const modalTitle = document.getElementById('modalTitle');
-  const postTitle = document.getElementById('postTitle');
-  const postContent = document.getElementById('postContent');
-  const postLabels = document.getElementById('postLabels');
-  const postStatus = document.getElementById('postStatus');
-  const modalSaveBtn = document.getElementById('modalSaveBtn');
-  const modalCancelBtn = document.getElementById('modalCancelBtn');
-  const toastContainer = document.getElementById('toastContainer');
-  const loadingOverlay = document.getElementById('loadingOverlay');
-
-  let posts = [];
-  let nextPageToken = null;
-  let prevPageToken = null;
-  let currentPageToken = null;
-  let editingPostId = null;
-
-  // Toast notification
-  function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    const icon = type === 'success' ? 'fa-check-circle' : 
-                 type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
-    toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
-    toastContainer.appendChild(toast);
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transition = 'opacity 0.3s';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  }
-
-  // Render posts
-  function renderPosts(items) {
-    if (!items || items.length === 0) {
-      postList.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-edit" style="font-size:2rem;opacity:0.3;"></i>
-          <p>No posts found. Create your first post!</p>
-        </div>
-      `;
-      return;
-    }
-
-    postList.innerHTML = items.map(p => {
-      const status = p.status || 'DRAFT';
-      const labels = (p.labels || []).join(', ');
-      const date = new Date(p.updated || p.published);
-      const formattedDate = date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-      
-      return `
-      <div class="post-item" data-id="${p.id}">
-        <div class="post-info">
-          <h3>
-            ${p.title || 'Untitled'} 
-            <span class="badge ${status.toLowerCase()}">${status}</span>
-          </h3>
-          <div class="meta">
-            <span><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
-            ${labels ? `<span><i class="fas fa-tags"></i> ${labels}</span>` : ''}
-            ${p.url ? `<span><i class="fas fa-link"></i> <a href="${p.url}" target="_blank" style="color:#475569;text-decoration:none;">view</a></span>` : ''}
-          </div>
-        </div>
-        <div class="post-actions">
-          <button class="btn btn-outline btn-sm edit-btn" data-id="${p.id}">
-            <i class="fas fa-edit"></i> Edit
-          </button>
-          <button class="btn btn-warning btn-sm draft-toggle" data-id="${p.id}" data-status="${status}">
-            <i class="fas fa-pen-fancy"></i> ${status === 'DRAFT' ? 'Publish' : 'Draft'}
-          </button>
-          <button class="btn btn-danger btn-sm delete-btn" data-id="${p.id}">
-            <i class="fas fa-trash-alt"></i> Delete
-          </button>
-        </div>
-      </div>
-    `}).join('');
-
-    // Event listeners for buttons
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.dataset.id;
-        const post = posts.find(p => p.id === id);
-        if (post) openEditModal(post);
-      });
-    });
-
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        if (!confirm('Delete this post permanently?')) return;
-        try {
-          const id = btn.dataset.id;
-          await Blogger.deletePost(id);
-          showToast('Post deleted successfully', 'success');
-          await loadPosts();
-        } catch (e) {
-          showToast('Delete failed: ' + e.message, 'error');
+    // Check authentication
+    const token = Auth.getToken();
+    if (!token) return;
+    
+    const postList = document.getElementById('postList');
+    const pagination = document.getElementById('pagination');
+    const userName = document.getElementById('userName');
+    const avatarBox = document.getElementById('avatarBox');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const newPostBtn = document.getElementById('newPostBtn');
+    const modal = document.getElementById('postModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const postTitle = document.getElementById('postTitle');
+    const postContent = document.getElementById('postContent');
+    const postLabels = document.getElementById('postLabels');
+    const postStatus = document.getElementById('postStatus');
+    const modalSaveBtn = document.getElementById('modalSaveBtn');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const toastContainer = document.getElementById('toastContainer');
+    
+    let posts = [];
+    let nextPageToken = null;
+    let prevPageToken = null;
+    let currentPageToken = null;
+    let editingPostId = null;
+    
+    // Load user info
+    Auth.getUser().then(user => {
+        if (user) {
+            userName.textContent = user.name || 'User';
+            avatarBox.textContent = user.name ? user.name[0].toUpperCase() : '👤';
         }
-      });
     });
-
-    document.querySelectorAll('.draft-toggle').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const id = btn.dataset.id;
-        const currentStatus = btn.dataset.status;
-        try {
-          if (currentStatus === 'DRAFT') {
-            await Blogger.publishPost(id);
-            showToast('Post published successfully', 'success');
-          } else {
-            await Blogger.revertPost(id);
-            showToast('Post reverted to draft', 'success');
-          }
-          await loadPosts();
-        } catch (e) {
-          showToast('Status change failed: ' + e.message, 'error');
+    
+    // Toast notification
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.3s';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+    
+    // Render posts
+    function renderPosts(items) {
+        if (!items || items.length === 0) {
+            postList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-edit" style="font-size:2rem;opacity:0.3;"></i>
+                    <p>No posts found. Create your first post!</p>
+                </div>
+            `;
+            return;
         }
-      });
-    });
-  }
-
-  // Pagination
-  function renderPagination(nextToken, prevToken) {
-    pagination.innerHTML = '';
-    if (prevToken) {
-      const prev = document.createElement('button');
-      prev.innerText = '← Previous';
-      prev.onclick = () => {
-        currentPageToken = prevToken;
-        loadPosts(currentPageToken);
-      };
-      pagination.appendChild(prev);
-    }
-    if (nextToken) {
-      const next = document.createElement('button');
-      next.innerText = 'Next →';
-      next.onclick = () => {
-        currentPageToken = nextToken;
-        loadPosts(currentPageToken);
-      };
-      pagination.appendChild(next);
-    }
-  }
-
-  // Load posts
-  async function loadPosts(pageToken = null) {
-    if (!Auth.isAuthenticated()) {
-      postList.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-google" style="font-size:2rem;opacity:0.3;"></i>
-          <p>Please sign in with Google to manage your blog</p>
-        </div>
-      `;
-      pagination.innerHTML = '';
-      return;
-    }
-
-    postList.innerHTML = `<div class="spinner"></div>`;
-    try {
-      const search = searchInput.value.trim();
-      const result = await Blogger.listPosts({
-        pageToken: pageToken || currentPageToken,
-        search
-      });
-      posts = result.items;
-      nextPageToken = result.nextPageToken;
-      prevPageToken = result.prevPageToken;
-      renderPosts(posts);
-      renderPagination(nextPageToken, prevPageToken);
-    } catch (e) {
-      showToast('Error loading posts: ' + e.message, 'error');
-      postList.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-exclamation-triangle" style="font-size:2rem;opacity:0.3;"></i>
-          <p>${e.message}</p>
-        </div>
-      `;
-    }
-  }
-
-  // Open modal
-  function openEditModal(post = null) {
-    if (post) {
-      editingPostId = post.id;
-      modalTitle.innerText = 'Edit Post';
-      postTitle.value = post.title || '';
-      postContent.value = post.content || '';
-      postLabels.value = (post.labels || []).join(', ');
-      postStatus.value = post.status || 'DRAFT';
-    } else {
-      editingPostId = null;
-      modalTitle.innerText = 'Create New Post';
-      postTitle.value = '';
-      postContent.value = '';
-      postLabels.value = '';
-      postStatus.value = 'DRAFT';
-    }
-    modal.classList.add('active');
-  }
-
-  function closeModal() {
-    modal.classList.remove('active');
-  }
-
-  // Save post
-  async function savePost() {
-    const title = postTitle.value.trim();
-    const content = postContent.value.trim();
-    const labels = postLabels.value.split(',').map(s => s.trim()).filter(Boolean);
-    const status = postStatus.value;
-
-    if (!title) {
-      showToast('Title is required', 'error');
-      postTitle.focus();
-      return;
-    }
-    if (!content) {
-      showToast('Content is required', 'error');
-      postContent.focus();
-      return;
-    }
-
-    const payload = {
-      title: title,
-      content: content,
-      labels: labels,
-      status: status
-    };
-
-    try {
-      if (editingPostId) {
-        await Blogger.updatePost(editingPostId, payload);
-        showToast('Post updated successfully', 'success');
-      } else {
-        await Blogger.createPost(payload);
-        showToast('Post created successfully', 'success');
-      }
-      closeModal();
-      await loadPosts();
-    } catch (e) {
-      showToast('Save failed: ' + e.message, 'error');
-    }
-  }
-
-  // Update UI based on auth state
-  function updateUI() {
-    const signedIn = Auth.isAuthenticated();
-    const user = Auth.getUser();
-
-    if (signedIn && user) {
-      loginBtn.classList.add('hidden');
-      logoutBtn.classList.remove('hidden');
-      userName.classList.remove('hidden');
-      userName.innerText = user.name || 'User';
-      avatarBox.innerText = user.name ? user.name[0].toUpperCase() : '👤';
-      
-      // Hide loading overlay if visible
-      loadingOverlay.classList.remove('active');
-      
-      // Load posts
-      loadPosts();
-    } else {
-      loginBtn.classList.remove('hidden');
-      logoutBtn.classList.add('hidden');
-      userName.classList.add('hidden');
-      avatarBox.innerText = '👤';
-      
-      // Hide loading overlay if visible
-      loadingOverlay.classList.remove('active');
-      
-      postList.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-google" style="font-size:2rem;opacity:0.3;"></i>
-          <p>Please sign in with Google to manage your blog</p>
-        </div>
-      `;
-      pagination.innerHTML = '';
-    }
-  }
-
-  // Event Listeners
-  loginBtn.addEventListener('click', () => Auth.signIn());
-  
-  logoutBtn.addEventListener('click', () => {
-    Auth.signOut();
-    updateUI();
-  });
-
-  searchBtn.addEventListener('click', () => {
-    currentPageToken = null;
-    loadPosts(null);
-  });
-
-  searchInput.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter') {
-      currentPageToken = null;
-      loadPosts(null);
-    }
-  });
-
-  refreshBtn.addEventListener('click', () => {
-    currentPageToken = null;
-    loadPosts(null);
-  });
-
-  newPostBtn.addEventListener('click', () => openEditModal(null));
-
-  modalCancelBtn.addEventListener('click', closeModal);
-  
-  modalSaveBtn.addEventListener('click', savePost);
-  
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('active')) {
-      closeModal();
-    }
-  });
-
-  // Auth change listener
-  document.addEventListener('authChange', updateUI);
-
-  // Initialize - FIXED
-  console.log('Initializing...');
-  Auth.init()
-    .then(() => {
-      console.log('Auth initialized successfully');
-      // Force check auth state
-      const hasToken = localStorage.getItem('blogger_access_token');
-      if (hasToken) {
-        // If token exists but user not loaded, try to load
-        Auth.fetchUserInfo().then(() => {
-          updateUI();
+        
+        postList.innerHTML = items.map(p => {
+            const status = p.status || 'DRAFT';
+            const labels = (p.labels || []).join(', ');
+            const date = new Date(p.updated || p.published);
+            const formattedDate = date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            
+            return `
+            <div class="post-item" data-id="${p.id}">
+                <div class="post-info">
+                    <h3>
+                        ${p.title || 'Untitled'} 
+                        <span class="badge ${status.toLowerCase()}">${status}</span>
+                    </h3>
+                    <div class="meta">
+                        <span><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
+                        ${labels ? `<span><i class="fas fa-tags"></i> ${labels}</span>` : ''}
+                        ${p.url ? `<span><i class="fas fa-link"></i> <a href="${p.url}" target="_blank" style="color:#475569;text-decoration:none;">view</a></span>` : ''}
+                    </div>
+                </div>
+                <div class="post-actions">
+                    <button class="btn btn-outline edit-btn" data-id="${p.id}">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-warning toggle-btn" data-id="${p.id}" data-status="${status}">
+                        <i class="fas fa-pen-fancy"></i> ${status === 'DRAFT' ? 'Publish' : 'Draft'}
+                    </button>
+                    <button class="btn btn-danger delete-btn" data-id="${p.id}">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </div>
+            </div>
+        `}).join('');
+        
+        // Edit button
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const post = posts.find(p => p.id === id);
+                if (post) openModal(post);
+            });
         });
-      } else {
-        updateUI();
-      }
-      
-      // Auto refresh token every 5 minutes
-      setInterval(async () => {
-        if (Auth.isAuthenticated()) {
-          await Auth.refreshToken();
+        
+        // Delete button
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!confirm('Delete this post permanently?')) return;
+                try {
+                    const id = btn.dataset.id;
+                    await Blogger.deletePost(id);
+                    showToast('Post deleted successfully', 'success');
+                    await loadPosts();
+                } catch (e) {
+                    showToast('Delete failed: ' + e.message, 'error');
+                }
+            });
+        });
+        
+        // Toggle button (Publish/Draft)
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                const currentStatus = btn.dataset.status;
+                try {
+                    if (currentStatus === 'DRAFT') {
+                        await Blogger.publishPost(id);
+                        showToast('Post published successfully', 'success');
+                    } else {
+                        await Blogger.revertPost(id);
+                        showToast('Post reverted to draft', 'success');
+                    }
+                    await loadPosts();
+                } catch (e) {
+                    showToast('Status change failed: ' + e.message, 'error');
+                }
+            });
+        });
+    }
+    
+    // Pagination
+    function renderPagination(nextToken, prevToken) {
+        pagination.innerHTML = '';
+        if (prevToken) {
+            const prev = document.createElement('button');
+            prev.textContent = '← Previous';
+            prev.onclick = () => {
+                currentPageToken = prevToken;
+                loadPosts(currentPageToken);
+            };
+            pagination.appendChild(prev);
         }
-      }, 300000);
-    })
-    .catch(err => {
-      console.error('Auth init error:', err);
-      showToast('Failed to initialize authentication', 'error');
-      loadingOverlay.classList.remove('active');
+        if (nextToken) {
+            const next = document.createElement('button');
+            next.textContent = 'Next →';
+            next.onclick = () => {
+                currentPageToken = nextToken;
+                loadPosts(currentPageToken);
+            };
+            pagination.appendChild(next);
+        }
+    }
+    
+    // Load posts
+    async function loadPosts(pageToken = null) {
+        postList.innerHTML = '<div class="spinner"></div>';
+        try {
+            const search = searchInput.value.trim();
+            const result = await Blogger.listPosts({
+                pageToken: pageToken || currentPageToken,
+                search
+            });
+            posts = result.items;
+            nextPageToken = result.nextPageToken;
+            prevPageToken = result.prevPageToken;
+            renderPosts(posts);
+            renderPagination(nextPageToken, prevPageToken);
+        } catch (e) {
+            showToast('Error loading posts: ' + e.message, 'error');
+            postList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle" style="font-size:2rem;opacity:0.3;"></i>
+                    <p>${e.message}</p>
+                </div>
+            `;
+        }
+    }
+    
+    // Open modal
+    function openModal(post = null) {
+        if (post) {
+            editingPostId = post.id;
+            modalTitle.textContent = 'Edit Post';
+            postTitle.value = post.title || '';
+            postContent.value = post.content || '';
+            postLabels.value = (post.labels || []).join(', ');
+            postStatus.value = post.status || 'DRAFT';
+        } else {
+            editingPostId = null;
+            modalTitle.textContent = 'Create New Post';
+            postTitle.value = '';
+            postContent.value = '';
+            postLabels.value = '';
+            postStatus.value = 'DRAFT';
+        }
+        modal.classList.add('active');
+    }
+    
+    function closeModal() {
+        modal.classList.remove('active');
+    }
+    
+    // Save post
+    async function savePost() {
+        const title = postTitle.value.trim();
+        const content = postContent.value.trim();
+        const labels = postLabels.value.split(',').map(s => s.trim()).filter(Boolean);
+        const status = postStatus.value;
+        
+        if (!title) {
+            showToast('Title is required', 'error');
+            postTitle.focus();
+            return;
+        }
+        if (!content) {
+            showToast('Content is required', 'error');
+            postContent.focus();
+            return;
+        }
+        
+        const payload = { title, content, labels, status };
+        
+        try {
+            if (editingPostId) {
+                await Blogger.updatePost(editingPostId, payload);
+                showToast('Post updated successfully', 'success');
+            } else {
+                await Blogger.createPost(payload);
+                showToast('Post created successfully', 'success');
+            }
+            closeModal();
+            await loadPosts();
+        } catch (e) {
+            showToast('Save failed: ' + e.message, 'error');
+        }
+    }
+    
+    // Event listeners
+    logoutBtn.addEventListener('click', Auth.signOut);
+    
+    searchBtn.addEventListener('click', () => {
+        currentPageToken = null;
+        loadPosts(null);
     });
-
+    
+    searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            currentPageToken = null;
+            loadPosts(null);
+        }
+    });
+    
+    refreshBtn.addEventListener('click', () => {
+        currentPageToken = null;
+        loadPosts(null);
+    });
+    
+    newPostBtn.addEventListener('click', () => openModal(null));
+    
+    modalCancelBtn.addEventListener('click', closeModal);
+    
+    modalSaveBtn.addEventListener('click', savePost);
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+    
+    // Load initial posts
+    loadPosts();
+    
 })();
 </script>
 </body>
