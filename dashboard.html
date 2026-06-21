@@ -6,8 +6,372 @@
   <title>Blogger Admin · OAuth2</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* আপনার existing styles গুলো এখানে থাকবে */
-    /* ... */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+    body {
+      background: #f4f7fc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .app {
+      max-width: 1280px;
+      width: 100%;
+      background: white;
+      border-radius: 2rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+      padding: 2rem 2rem 2.5rem;
+      transition: 0.2s;
+    }
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      gap: 1rem 0.5rem;
+    }
+    .header h1 {
+      font-weight: 600;
+      font-size: 1.8rem;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .header h1 i {
+      color: #3b82f6;
+    }
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .user-area .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      color: #1e293b;
+    }
+    .btn {
+      background: white;
+      border: 1px solid #d1d9e6;
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #1e293b;
+      background: #f8fafc;
+    }
+    .btn-primary {
+      background: #1e293b;
+      border: 1px solid #1e293b;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #0f172a;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+    .btn-success {
+      background: #059669;
+      border: 1px solid #059669;
+      color: white;
+    }
+    .btn-success:hover {
+      background: #047857;
+    }
+    .btn-danger {
+      background: #dc2626;
+      border: 1px solid #dc2626;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+    .btn-warning {
+      background: #d97706;
+      border: 1px solid #d97706;
+      color: white;
+    }
+    .btn-warning:hover {
+      background: #b45309;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .search-box {
+      display: flex;
+      flex: 1 1 260px;
+      background: #f1f5f9;
+      border-radius: 60px;
+      padding: 0.2rem 0.2rem 0.2rem 1.2rem;
+      align-items: center;
+    }
+    .search-box i {
+      color: #64748b;
+    }
+    .search-box input {
+      border: none;
+      background: transparent;
+      padding: 0.6rem 0.8rem;
+      width: 100%;
+      outline: none;
+      font-size: 0.95rem;
+    }
+    .search-box button {
+      background: #1e293b;
+      border: none;
+      color: white;
+      padding: 0.5rem 1.2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .search-box button:hover {
+      background: #0f172a;
+    }
+    .action-group {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .post-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .post-item {
+      background: white;
+      border-radius: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+      border: 1px solid #e9edf2;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.1s;
+    }
+    .post-item:hover {
+      border-color: #cbd5e1;
+      background: #fafcff;
+    }
+    .post-info {
+      flex: 2 1 300px;
+    }
+    .post-info h3 {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #0f172a;
+      margin-bottom: 0.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .post-info .meta {
+      font-size: 0.8rem;
+      color: #475569;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+      margin-top: 0.2rem;
+    }
+    .badge {
+      background: #e2e8f0;
+      padding: 0.1rem 0.6rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #1e293b;
+    }
+    .badge.draft {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+    .badge.published {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .post-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    .post-actions .btn {
+      padding: 0.25rem 0.9rem;
+      font-size: 0.8rem;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #64748b;
+    }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.4);
+      backdrop-filter: blur(3px);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      padding: 1rem;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-card {
+      background: white;
+      max-width: 600px;
+      width: 100%;
+      border-radius: 2rem;
+      padding: 2rem 2rem 2.2rem;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+      animation: fadeUp 0.2s;
+    }
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .modal-card h2 {
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      color: #0f172a;
+    }
+    .modal-card label {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: #1e293b;
+      display: block;
+      margin: 0.8rem 0 0.2rem;
+    }
+    .modal-card input, .modal-card textarea, .modal-card select {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      border: 1px solid #d1d9e6;
+      border-radius: 60px;
+      font-size: 0.95rem;
+      background: #fafcff;
+    }
+    .modal-card textarea {
+      border-radius: 1.2rem;
+      min-height: 80px;
+      resize: vertical;
+    }
+    .modal-card .row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .modal-card .row > * {
+      flex: 1;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.8rem;
+      margin-top: 1.8rem;
+    }
+    @media (max-width: 640px) {
+      .app { padding: 1.2rem; }
+      .header h1 { font-size: 1.4rem; }
+      .post-item { flex-direction: column; align-items: stretch; gap: 0.7rem; }
+      .post-actions { justify-content: flex-start; }
+    }
+    .hidden { display: none !important; }
+    
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: 12px 18px;
+      margin-top: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .toast.success { background: #16a34a; }
+    .toast.error { background: #dc2626; }
+    .toast.info { background: #2563eb; }
+    
+    .spinner {
+      width: 32px;
+      height: 32px;
+      margin: 30px auto;
+      border: 4px solid #e5e7eb;
+      border-top: 4px solid #2563eb;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .pagination button {
+      padding: 0.5rem 1.5rem;
+      border: 1px solid #d1d9e6;
+      background: white;
+      border-radius: 60px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.15s;
+    }
+    .pagination button:hover {
+      background: #f1f5f9;
+    }
   </style>
 </head>
 <body>
@@ -21,6 +385,7 @@
       <span id="userName" class="hidden" style="font-weight:500;">User</span>
       <div class="avatar" id="avatarBox">👤</div>
       <button class="btn btn-outline hidden" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      <button class="btn btn-primary" id="loginBtn"><i class="fas fa-google"></i> Sign In</button>
     </div>
   </div>
 
@@ -39,7 +404,12 @@
 
   <!-- Post List -->
   <div id="postListContainer">
-    <div class="post-list" id="postList"></div>
+    <div class="post-list" id="postList">
+      <div class="empty-state">
+        <i class="fas fa-google" style="font-size:2rem;opacity:0.3;"></i>
+        <p>Please sign in with Google to manage your blog</p>
+      </div>
+    </div>
     <div class="pagination" id="pagination"></div>
   </div>
 </div>
@@ -48,10 +418,10 @@
 <div class="modal-overlay" id="postModal">
   <div class="modal-card">
     <h2 id="modalTitle">Create Post</h2>
-    <label>Title</label>
+    <label>Title *</label>
     <input type="text" id="postTitle" placeholder="Post title">
 
-    <label>Content (HTML)</label>
+    <label>Content (HTML) *</label>
     <textarea id="postContent" placeholder="Write your post content..."></textarea>
 
     <div class="row">
@@ -75,29 +445,42 @@
 </div>
 
 <script>
-// ==================== CONFIG ====================
+// ============================================================
+//  CONFIGURATION - এখানে শুধু আপনার তথ্য দিন
+// ============================================================
 const CONFIG = {
-  // ⚠️ আপনার নিজের Client ID দিন (যা Blogger API এর জন্য enable করা)
+  // ⚠️ আপনার Google Cloud Console থেকে Client ID দিন
   CLIENT_ID: '146025507938-3mnp25rn9ps0gi191ov3c6741n6fj9n6.apps.googleusercontent.com',
-  BLOG_ID: '4609132939861743156', // আপনার Blog ID
+  
+  // ⚠️ আপনার Blogger Blog ID দিন
+  BLOG_ID: '4609132939861743156',
+  
   SCOPES: 'https://www.googleapis.com/auth/blogger',
 };
 
-// ==================== AUTH ====================
+// ============================================================
+//  AUTH MODULE
+// ============================================================
 const Auth = (() => {
   let tokenClient = null;
   let accessToken = localStorage.getItem('blogger_access_token') || null;
   let tokenExpiry = parseInt(localStorage.getItem('blogger_token_expiry') || '0');
   let currentUser = null;
   let isSignedIn = false;
-  let tokenRefreshTimeout = null;
+  let refreshTimeout = null;
 
   function init() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       if (typeof google === 'undefined') {
         const script = document.createElement('script');
         script.src = 'https://accounts.google.com/gsi/client';
-        script.onload = () => resolve(initTokenClient());
+        script.onload = () => {
+          try {
+            resolve(initTokenClient());
+          } catch (e) {
+            reject(e);
+          }
+        };
         script.onerror = () => reject('Failed to load Google Identity Services');
         document.head.appendChild(script);
       } else {
@@ -116,17 +499,17 @@ const Auth = (() => {
         } else if (resp.error) {
           console.error('Token error:', resp.error);
           isSignedIn = false;
+          document.dispatchEvent(new Event('authChange'));
         }
       },
     });
 
-    // যদি token থাকে এবং expiry ভবিষ্যতে হয়
+    // Check existing token
     if (accessToken && tokenExpiry > Date.now()) {
       isSignedIn = true;
       fetchUserInfo();
-      scheduleTokenRefresh();
+      scheduleRefresh();
     } else if (accessToken) {
-      // Token expired, refresh
       refreshToken();
     }
 
@@ -136,19 +519,20 @@ const Auth = (() => {
   function handleTokenResponse(resp) {
     accessToken = resp.access_token;
     const expiresIn = resp.expires_in || 3600;
-    tokenExpiry = Date.now() + (expiresIn * 1000) - 60000; // 1 minute buffer
+    tokenExpiry = Date.now() + (expiresIn * 1000) - 60000;
     localStorage.setItem('blogger_access_token', accessToken);
     localStorage.setItem('blogger_token_expiry', String(tokenExpiry));
     isSignedIn = true;
     fetchUserInfo();
-    scheduleTokenRefresh();
+    scheduleRefresh();
+    document.dispatchEvent(new Event('authChange'));
   }
 
-  function scheduleTokenRefresh() {
-    if (tokenRefreshTimeout) clearTimeout(tokenRefreshTimeout);
-    const timeUntilRefresh = tokenExpiry - Date.now() - 120000; // 2 minutes before expiry
+  function scheduleRefresh() {
+    if (refreshTimeout) clearTimeout(refreshTimeout);
+    const timeUntilRefresh = tokenExpiry - Date.now() - 120000;
     if (timeUntilRefresh > 0) {
-      tokenRefreshTimeout = setTimeout(() => {
+      refreshTimeout = setTimeout(() => {
         refreshToken();
       }, timeUntilRefresh);
     }
@@ -166,7 +550,6 @@ const Auth = (() => {
       .then(data => {
         currentUser = data;
         isSignedIn = true;
-        // Update UI
         document.dispatchEvent(new Event('authChange'));
       })
       .catch(() => {
@@ -178,8 +561,11 @@ const Auth = (() => {
   }
 
   function signIn() {
-    if (!tokenClient) return;
-    tokenClient.requestAccessToken({ prompt: 'consent' });
+    if (!tokenClient) {
+      init().then(() => tokenClient.requestAccessToken({ prompt: 'consent' }));
+    } else {
+      tokenClient.requestAccessToken({ prompt: 'consent' });
+    }
   }
 
   function signOut() {
@@ -188,17 +574,14 @@ const Auth = (() => {
         method: 'POST'
       }).catch(() => {});
     }
-
     localStorage.removeItem('blogger_access_token');
     localStorage.removeItem('blogger_token_expiry');
     accessToken = null;
     tokenExpiry = 0;
     isSignedIn = false;
     currentUser = null;
-    if (tokenRefreshTimeout) clearTimeout(tokenRefreshTimeout);
-    
+    if (refreshTimeout) clearTimeout(refreshTimeout);
     document.dispatchEvent(new Event('authChange'));
-    window.location.reload(); // অথবা login page এ redirect করুন
   }
 
   function refreshToken() {
@@ -207,13 +590,7 @@ const Auth = (() => {
         resolve(null);
         return;
       }
-      
-      tokenClient.requestAccessToken({ 
-        prompt: 'none',
-        hint: 'Refresh token'
-      });
-      
-      // Callback handle করবে
+      tokenClient.requestAccessToken({ prompt: 'none' });
       resolve(accessToken);
     });
   }
@@ -231,11 +608,6 @@ const Auth = (() => {
 
   function getUser() { return currentUser; }
 
-  // Event listener for auth changes
-  document.addEventListener('authChange', () => {
-    // UI update logic
-  });
-
   return { 
     init, 
     signIn, 
@@ -247,7 +619,9 @@ const Auth = (() => {
   };
 })();
 
-// ==================== BLOGGER API ====================
+// ============================================================
+//  BLOGGER API MODULE
+// ============================================================
 const Blogger = (() => {
   const BLOG_ID = CONFIG.BLOG_ID;
   const API_BASE = `https://www.googleapis.com/blogger/v3/blogs/${BLOG_ID}`;
@@ -265,10 +639,8 @@ const Blogger = (() => {
     try {
       let response = await fetch(url, { ...options, headers: getHeaders() });
 
-      // যদি 401 আসে, token refresh করে retry
       if (response.status === 401) {
         await Auth.refreshToken();
-        // নতুন token দিয়ে আবার চেষ্টা
         response = await fetch(url, { 
           ...options, 
           headers: getHeaders() 
@@ -341,44 +713,353 @@ const Blogger = (() => {
   return { listPosts, createPost, updatePost, deletePost, publishPost, revertPost };
 })();
 
-// ==================== DASHBOARD ====================
+// ============================================================
+//  DASHBOARD UI
+// ============================================================
 (function Dashboard() {
-  // ... আপনার existing dashboard code
-  // তবে Auth.isAuthenticated() চেক করে UI update করুন
-  
-  // Example updateUI function:
-  function updateUI() {
-    const signedIn = Auth.isAuthenticated();
-    const user = Auth.getUser();
-    
-    if (signedIn && user) {
-      document.getElementById('logoutBtn').classList.remove('hidden');
-      document.getElementById('userName').classList.remove('hidden');
-      document.getElementById('userName').innerText = user.name || 'User';
-      document.getElementById('avatarBox').innerText = user.name ? user.name[0].toUpperCase() : '👤';
-      loadPosts();
-    } else {
-      document.getElementById('logoutBtn').classList.add('hidden');
-      document.getElementById('userName').classList.add('hidden');
-      document.getElementById('avatarBox').innerText = '👤';
-      // Show login prompt
+  // DOM Elements
+  const postList = document.getElementById('postList');
+  const pagination = document.getElementById('pagination');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const loginBtn = document.getElementById('loginBtn');
+  const userName = document.getElementById('userName');
+  const avatarBox = document.getElementById('avatarBox');
+  const searchInput = document.getElementById('searchInput');
+  const searchBtn = document.getElementById('searchBtn');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const newPostBtn = document.getElementById('newPostBtn');
+  const modal = document.getElementById('postModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const postTitle = document.getElementById('postTitle');
+  const postContent = document.getElementById('postContent');
+  const postLabels = document.getElementById('postLabels');
+  const postStatus = document.getElementById('postStatus');
+  const modalSaveBtn = document.getElementById('modalSaveBtn');
+  const modalCancelBtn = document.getElementById('modalCancelBtn');
+  const toastContainer = document.getElementById('toastContainer');
+
+  let posts = [];
+  let nextPageToken = null;
+  let prevPageToken = null;
+  let currentPageToken = null;
+  let editingPostId = null;
+
+  // Toast notification
+  function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icon = type === 'success' ? 'fa-check-circle' : 
+                 type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+    toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity 0.3s';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // Render posts
+  function renderPosts(items) {
+    if (!items || items.length === 0) {
+      postList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-edit" style="font-size:2rem;opacity:0.3;"></i>
+          <p>No posts found. Create your first post!</p>
+        </div>
+      `;
+      return;
+    }
+
+    postList.innerHTML = items.map(p => {
+      const status = p.status || 'DRAFT';
+      const labels = (p.labels || []).join(', ');
+      const date = new Date(p.updated || p.published);
+      const formattedDate = date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      
+      return `
+      <div class="post-item" data-id="${p.id}">
+        <div class="post-info">
+          <h3>
+            ${p.title || 'Untitled'} 
+            <span class="badge ${status.toLowerCase()}">${status}</span>
+          </h3>
+          <div class="meta">
+            <span><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
+            ${labels ? `<span><i class="fas fa-tags"></i> ${labels}</span>` : ''}
+            ${p.url ? `<span><i class="fas fa-link"></i> <a href="${p.url}" target="_blank" style="color:#475569;text-decoration:none;">view</a></span>` : ''}
+          </div>
+        </div>
+        <div class="post-actions">
+          <button class="btn btn-outline btn-sm edit-btn" data-id="${p.id}">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="btn btn-warning btn-sm draft-toggle" data-id="${p.id}" data-status="${status}">
+            <i class="fas fa-pen-fancy"></i> ${status === 'DRAFT' ? 'Publish' : 'Draft'}
+          </button>
+          <button class="btn btn-danger btn-sm delete-btn" data-id="${p.id}">
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>
+        </div>
+      </div>
+    `}).join('');
+
+    // Event listeners for buttons
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const post = posts.find(p => p.id === id);
+        if (post) openEditModal(post);
+      });
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Delete this post permanently?')) return;
+        try {
+          const id = btn.dataset.id;
+          await Blogger.deletePost(id);
+          showToast('Post deleted successfully', 'success');
+          await loadPosts();
+        } catch (e) {
+          showToast('Delete failed: ' + e.message, 'error');
+        }
+      });
+    });
+
+    document.querySelectorAll('.draft-toggle').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const currentStatus = btn.dataset.status;
+        try {
+          if (currentStatus === 'DRAFT') {
+            await Blogger.publishPost(id);
+            showToast('Post published successfully', 'success');
+          } else {
+            await Blogger.revertPost(id);
+            showToast('Post reverted to draft', 'success');
+          }
+          await loadPosts();
+        } catch (e) {
+          showToast('Status change failed: ' + e.message, 'error');
+        }
+      });
+    });
+  }
+
+  // Pagination
+  function renderPagination(nextToken, prevToken) {
+    pagination.innerHTML = '';
+    if (prevToken) {
+      const prev = document.createElement('button');
+      prev.innerText = '← Previous';
+      prev.onclick = () => {
+        currentPageToken = prevToken;
+        loadPosts(currentPageToken);
+      };
+      pagination.appendChild(prev);
+    }
+    if (nextToken) {
+      const next = document.createElement('button');
+      next.innerText = 'Next →';
+      next.onclick = () => {
+        currentPageToken = nextToken;
+        loadPosts(currentPageToken);
+      };
+      pagination.appendChild(next);
     }
   }
 
-  // Auth change listen
-  document.addEventListener('authChange', updateUI);
+  // Load posts
+  async function loadPosts(pageToken = null) {
+    if (!Auth.isAuthenticated()) {
+      postList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-google" style="font-size:2rem;opacity:0.3;"></i>
+          <p>Please sign in with Google to manage your blog</p>
+        </div>
+      `;
+      pagination.innerHTML = '';
+      return;
+    }
 
-  // Initialize
-  Auth.init().then(() => {
+    postList.innerHTML = `<div class="spinner"></div>`;
+    try {
+      const search = searchInput.value.trim();
+      const result = await Blogger.listPosts({
+        pageToken: pageToken || currentPageToken,
+        search
+      });
+      posts = result.items;
+      nextPageToken = result.nextPageToken;
+      prevPageToken = result.prevPageToken;
+      renderPosts(posts);
+      renderPagination(nextPageToken, prevPageToken);
+    } catch (e) {
+      showToast('Error loading posts: ' + e.message, 'error');
+      postList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-exclamation-triangle" style="font-size:2rem;opacity:0.3;"></i>
+          <p>${e.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  // Open modal
+  function openEditModal(post = null) {
+    if (post) {
+      editingPostId = post.id;
+      modalTitle.innerText = 'Edit Post';
+      postTitle.value = post.title || '';
+      postContent.value = post.content || '';
+      postLabels.value = (post.labels || []).join(', ');
+      postStatus.value = post.status || 'DRAFT';
+    } else {
+      editingPostId = null;
+      modalTitle.innerText = 'Create New Post';
+      postTitle.value = '';
+      postContent.value = '';
+      postLabels.value = '';
+      postStatus.value = 'DRAFT';
+    }
+    modal.classList.add('active');
+  }
+
+  function closeModal() {
+    modal.classList.remove('active');
+  }
+
+  // Save post
+  async function savePost() {
+    const title = postTitle.value.trim();
+    const content = postContent.value.trim();
+    const labels = postLabels.value.split(',').map(s => s.trim()).filter(Boolean);
+    const status = postStatus.value;
+
+    if (!title) {
+      showToast('Title is required', 'error');
+      postTitle.focus();
+      return;
+    }
+    if (!content) {
+      showToast('Content is required', 'error');
+      postContent.focus();
+      return;
+    }
+
+    const payload = {
+      title: title,
+      content: content,
+      labels: labels,
+      status: status
+    };
+
+    try {
+      if (editingPostId) {
+        await Blogger.updatePost(editingPostId, payload);
+        showToast('Post updated successfully', 'success');
+      } else {
+        await Blogger.createPost(payload);
+        showToast('Post created successfully', 'success');
+      }
+      closeModal();
+      await loadPosts();
+    } catch (e) {
+      showToast('Save failed: ' + e.message, 'error');
+    }
+  }
+
+  // Update UI based on auth state
+  function updateUI() {
+    const signedIn = Auth.isAuthenticated();
+    const user = Auth.getUser();
+
+    if (signedIn && user) {
+      loginBtn.classList.add('hidden');
+      logoutBtn.classList.remove('hidden');
+      userName.classList.remove('hidden');
+      userName.innerText = user.name || 'User';
+      avatarBox.innerText = user.name ? user.name[0].toUpperCase() : '👤';
+      loadPosts();
+    } else {
+      loginBtn.classList.remove('hidden');
+      logoutBtn.classList.add('hidden');
+      userName.classList.add('hidden');
+      avatarBox.innerText = '👤';
+      postList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-google" style="font-size:2rem;opacity:0.3;"></i>
+          <p>Please sign in with Google to manage your blog</p>
+        </div>
+      `;
+      pagination.innerHTML = '';
+    }
+  }
+
+  // Event Listeners
+  loginBtn.addEventListener('click', () => Auth.signIn());
+  
+  logoutBtn.addEventListener('click', () => {
+    Auth.signOut();
     updateUI();
   });
 
-  // Keyboard shortcut: Escape to close modal
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.getElementById('postModal').classList.remove('active');
+  searchBtn.addEventListener('click', () => {
+    currentPageToken = null;
+    loadPosts(null);
+  });
+
+  searchInput.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') {
+      currentPageToken = null;
+      loadPosts(null);
     }
   });
+
+  refreshBtn.addEventListener('click', () => {
+    currentPageToken = null;
+    loadPosts(null);
+  });
+
+  newPostBtn.addEventListener('click', () => openEditModal(null));
+
+  modalCancelBtn.addEventListener('click', closeModal);
+  
+  modalSaveBtn.addEventListener('click', savePost);
+  
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      closeModal();
+    }
+  });
+
+  // Auth change listener
+  document.addEventListener('authChange', updateUI);
+
+  // Initialize
+  Auth.init()
+    .then(() => {
+      updateUI();
+      // Auto refresh token every 5 minutes
+      setInterval(async () => {
+        if (Auth.isAuthenticated()) {
+          await Auth.refreshToken();
+        }
+      }, 300000);
+    })
+    .catch(err => {
+      console.error('Auth init error:', err);
+      showToast('Failed to initialize authentication', 'error');
+    });
 
 })();
 </script>
