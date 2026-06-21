@@ -325,9 +325,52 @@
     /* utility */
     .hidden { display: none !important; }
     .mt-1 { margin-top: 0.5rem; }
+    
+    .toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.toast {
+  background: #333;
+  color: #fff;
+  padding: 12px 18px;
+  margin-top: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+}
+
+.toast.success {
+  background: #16a34a;
+}
+
+.toast.error {
+  background: #dc2626;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  margin: 30px auto;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #2563eb;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
   </style>
 </head>
 <body>
+<div class="toast-container" id="toastContainer"></div>
+
 <div class="app" id="app">
 
   <!-- header -->
@@ -336,7 +379,7 @@
     <div class="user-area" id="userArea">
       <span id="userName" class="hidden" style="font-weight:500;">User</span>
       <div class="avatar" id="avatarBox">👤</div>
-      <button class="btn btn-primary" id="loginBtn"><i class="fab fa-google"></i> Sign in</button>
+  
       <button class="btn btn-outline hidden" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
   </div>
@@ -358,8 +401,6 @@
   <div id="postListContainer">
     <div class="post-list" id="postList"></div>
     <div class="pagination" id="pagination"></div>
-</div>
-  </div>
 </div>
 
 <!-- MODAL (create / edit) -->
@@ -392,8 +433,16 @@
   </div>
 </div>
 
+
 <!-- ===== JavaScript modules (inlined for single file) ===== -->
 <script>
+
+const accessToken = sessionStorage.getItem("access_token");
+
+if (!accessToken) {
+    alert("Login Required");
+    window.location.href = "index.html";
+}
   // ==================== config.js ====================
   // ==================== config.js ====================
 // ==================== config.js ====================
@@ -406,8 +455,15 @@ const CONFIG = {
 // ==================== auth.js (GIS) ====================
 const Auth = (() => {
   let tokenClient = null;
-  let accessToken = localStorage.getItem('blogger_access_token') || null;
+let accessToken =
+sessionStorage.getItem("access_token") ||
+localStorage.getItem("blogger_access_token") ||
+null;
   let tokenExpiry = parseInt(localStorage.getItem('blogger_token_expiry') || '0');
+  if (accessToken) {
+  sessionStorage.setItem("access_token", accessToken);
+  localStorage.setItem("blogger_access_token", accessToken);
+}
   let currentUser = null;
   let isSignedIn = false;
 
@@ -440,12 +496,10 @@ const Auth = (() => {
         }
       },
     });
-    if (accessToken && Date.now() < tokenExpiry) {
-      isSignedIn = true;
-      fetchUserInfo();
-    } else if (accessToken) {
-      tokenClient.requestAccessToken({ prompt: 'none' });
-    }
+    if (accessToken) {
+    isSignedIn = true;
+    fetchUserInfo();
+}
     return tokenClient;
   }
 
@@ -465,29 +519,27 @@ const Auth = (() => {
   }
 
   function signOut() {
-    if (accessToken) {
-      fetch(`https://oauth2.googleapis.com/revoke?token=${accessToken}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      }).catch(() => {});
-    }
-    localStorage.removeItem('blogger_access_token');
-    localStorage.removeItem('blogger_token_expiry');
-    accessToken = null;
-    tokenExpiry = 0;
-    isSignedIn = false;
-    currentUser = null;
+  if (accessToken) {
+    fetch(`https://oauth2.googleapis.com/revoke?token=${accessToken}`, {
+      method: "POST"
+    }).catch(() => {});
   }
 
+  sessionStorage.removeItem("access_token");
+  localStorage.removeItem("blogger_access_token");
+  localStorage.removeItem("blogger_token_expiry");
+
+  accessToken = null;
+  tokenExpiry = 0;
+  isSignedIn = false;
+  currentUser = null;
+
+  window.location.href = "index.html";
+}
+
   function getToken() {
-    if (accessToken && Date.now() < tokenExpiry) {
-      return accessToken;
-    }
-    if (tokenClient && accessToken) {
-      tokenClient.requestAccessToken({ prompt: 'none' });
-    }
-    return null;
-  }
+    return accessToken;
+}
 
   function refreshToken() {
     return new Promise((resolve) => {
@@ -643,7 +695,7 @@ const Blogger = (() => {
 (function Dashboard() {
   const postList = document.getElementById('postList');
   const pagination = document.getElementById('pagination');
-  const loginBtn = document.getElementById('loginBtn');
+  
   const logoutBtn = document.getElementById('logoutBtn');
   const userName = document.getElementById('userName');
   const avatarBox = document.getElementById('avatarBox');
@@ -862,32 +914,23 @@ const Blogger = (() => {
     const signedIn = Auth.isAuthenticated();
     const user = Auth.getUser();
     if (signedIn && user) {
-      loginBtn.classList.add('hidden');
+      
       logoutBtn.classList.remove('hidden');
       userName.classList.remove('hidden');
       userName.innerText = user.name || 'User';
       avatarBox.innerText = user.name ? user.name[0].toUpperCase() : '👤';
       loadPosts();
     } else {
-      loginBtn.classList.remove('hidden');
+    
       logoutBtn.classList.add('hidden');
       userName.classList.add('hidden');
       avatarBox.innerText = '👤';
-      postList.innerHTML = `<div class="empty-state"><i class="fab fa-google"></i><p>Sign in to manage your blog</p></div>`;
+      window.location.href = "index.html";
       pagination.innerHTML = '';
     }
   }
 
-  // Event Listeners
-  loginBtn.addEventListener('click', () => {
-    Auth.signIn();
-    const check = setInterval(() => {
-      if (Auth.isAuthenticated()) {
-        clearInterval(check);
-        updateUI();
-      }
-    }, 500);
-  });
+
 
   logoutBtn.addEventListener('click', () => {
     Auth.signOut();
