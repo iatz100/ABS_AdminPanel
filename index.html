@@ -1,116 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ABS Blogger Admin</title>
-
-<script src="https://accounts.google.com/gsi/client"></script>
-
-<style>
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f4f4f4;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-
-.box{
-    background:#fff;
-    padding:30px;
-    border-radius:10px;
-    box-shadow:0 5px 15px rgba(0,0,0,.15);
-    text-align:center;
-    width:320px;
-}
-
-h2{
-    margin-top:0;
-}
-
-button{
-    width:100%;
-    padding:14px;
-    font-size:17px;
-    background:#4285F4;
-    color:#fff;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#3367D6;
-}
-
-#status{
-    margin-top:20px;
-    font-weight:bold;
-}
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogger Admin</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 3rem 2.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .login-container .logo {
+            font-size: 4rem;
+            color: #3b82f6;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-container h1 {
+            font-size: 2rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-container .subtitle {
+            color: #64748b;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        
+        .btn-google {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 60px;
+            background: white;
+            color: #1e293b;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+        
+        .btn-google:hover:not(:disabled) {
+            background: #f8fafc;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59,130,246,0.15);
+        }
+        
+        .btn-google:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .error-box {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            display: none;
+            font-size: 0.9rem;
+        }
+        
+        .loading-box {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .spinner {
+            width: 30px;
+            height: 30px;
+            margin: 0 auto;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-box p {
+            margin-top: 0.5rem;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .footer {
+            margin-top: 2rem;
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+        
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-dot.loading {
+            background: #f59e0b;
+            animation: pulse 1s infinite;
+        }
+        
+        .status-dot.success {
+            background: #10b981;
+        }
+        
+        .status-dot.error {
+            background: #ef4444;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .status-text {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        
+        #statusIndicator {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="box">
+<div class="login-container">
+    <div class="logo">
+        <i class="fab fa-blogger-b"></i>
+    </div>
+    <h1>Blogger Admin</h1>
+    <p class="subtitle">Sign in to manage your blog posts</p>
 
-<h2>ABS Blogger Admin</h2>
+    <div id="statusIndicator">
+        <span class="status-dot loading" id="statusDot"></span>
+        <span class="status-text" id="statusText">Initializing...</span>
+    </div>
 
-<button onclick="login()">
-Login With Google
-</button>
+    <button class="btn-google" id="loginBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign in with Google
+    </button>
 
-<div id="status"></div>
+    <div class="loading-box" id="loadingBox">
+        <div class="spinner"></div>
+        <p>Signing in...</p>
+    </div>
 
+    <div class="error-box" id="errorBox">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorText">Something went wrong</span>
+    </div>
+
+    <div class="footer">
+        <i class="fas fa-lock"></i> Secured by Google OAuth 2.0
+    </div>
 </div>
 
 <script>
+// ============================================================
+//  CONFIGURATION
+// ============================================================
+const CONFIG = {
+    CLIENT_ID: '146025507938-3mnp25rn9ps0gi191ov3c6741n6fj9n6.apps.googleusercontent.com',
+    SCOPES: 'https://www.googleapis.com/auth/blogger',
+};
 
-const CLIENT_ID = "146025507938-3mnp25rn9ps0gi191ov3c6741n6fj9n6.apps.googleusercontent.com";
+// ============================================================
+//  DOM REFS
+// ============================================================
+const loginBtn = document.getElementById('loginBtn');
+const loadingBox = document.getElementById('loadingBox');
+const errorBox = document.getElementById('errorBox');
+const errorText = document.getElementById('errorText');
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
 
-let accessToken = "";
+let tokenClient = null;
 
-const tokenClient = google.accounts.oauth2.initTokenClient({
+// ============================================================
+//  UTILITY FUNCTIONS
+// ============================================================
+function setStatus(type, message) {
+    statusDot.className = 'status-dot';
+    if (type === 'loading') {
+        statusDot.classList.add('loading');
+        statusText.textContent = message || 'Loading...';
+    } else if (type === 'success') {
+        statusDot.classList.add('success');
+        statusText.textContent = message || 'Ready';
+    } else if (type === 'error') {
+        statusDot.classList.add('error');
+        statusText.textContent = message || 'Error';
+    }
+    console.log('Status:', type, message);
+}
 
-    client_id: CLIENT_ID,
+function showError(message) {
+    errorBox.style.display = 'block';
+    errorText.textContent = message;
+    console.error('❌ Error:', message);
+    setStatus('error', 'Error');
+}
 
-    scope: "https://www.googleapis.com/auth/blogger",
+function hideError() {
+    errorBox.style.display = 'none';
+}
 
-    callback: (response) => {
+function setLoading(isLoading) {
+    if (isLoading) {
+        loadingBox.style.display = 'block';
+        loginBtn.disabled = true;
+        setStatus('loading', 'Signing in...');
+    } else {
+        loadingBox.style.display = 'none';
+        loginBtn.disabled = false;
+        setStatus('success', 'Ready');
+    }
+}
 
-        if(response.error){
-            document.getElementById("status").innerHTML = response.error;
+// ============================================================
+//  CHECK EXISTING SESSION
+// ============================================================
+function checkExistingSession() {
+    const token = localStorage.getItem('blogger_access_token');
+    const expiry = parseInt(localStorage.getItem('blogger_token_expiry') || '0');
+    
+    console.log('🔍 Checking session:', { hasToken: !!token, expiry });
+    
+    if (token && expiry > Date.now()) {
+        console.log('✅ Valid session found, redirecting...');
+        window.location.href = 'dashboard.html';
+        return true;
+    }
+    return false;
+}
+
+// ============================================================
+//  HANDLE TOKEN RESPONSE
+// ============================================================
+function handleTokenResponse(resp) {
+    console.log('📨 Token response:', resp);
+    
+    setLoading(false);
+
+    if (resp.access_token) {
+        const expiresIn = resp.expires_in || 3600;
+        const expiry = Date.now() + (expiresIn * 1000) - 60000;
+        
+        localStorage.setItem('blogger_access_token', resp.access_token);
+        localStorage.setItem('blogger_token_expiry', String(expiry));
+        
+        console.log('✅ Token saved, redirecting to dashboard...');
+        window.location.href = 'dashboard.html';
+        
+    } else if (resp.error) {
+        console.error('❌ Auth error:', resp.error);
+        showError(resp.error_description || resp.error || 'Authentication failed');
+        setStatus('error', 'Auth Failed');
+        loginBtn.disabled = false;
+    }
+}
+
+// ============================================================
+//  LOAD GOOGLE API - SIMPLIFIED
+// ============================================================
+function loadGoogleAPI() {
+    return new Promise((resolve, reject) => {
+        // Check if already loaded
+        if (typeof google !== 'undefined' && google.accounts) {
+            console.log('✅ Google API already loaded');
+            resolve();
             return;
         }
 
-        accessToken = response.access_token;
+        console.log('📥 Loading Google API...');
+        setStatus('loading', 'Loading Google API...');
 
-        // Token Save
-        sessionStorage.setItem("access_token", accessToken);
-
-        document.getElementById("status").innerHTML = "✅ Login Success";
-
-        // Dashboard এ যাওয়ার আগে ১ সেকেন্ড অপেক্ষা
-        setTimeout(()=>{
-            window.location.href = "dashboard.html";
-        },1000);
-
-    }
-
-});
-
-function login(){
-
-    tokenClient.requestAccessToken({
-        prompt:"consent"
+        // Create script element
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        
+        script.onload = () => {
+            console.log('✅ Google API script loaded');
+            // Wait a moment for initialization
+            setTimeout(() => {
+                if (typeof google !== 'undefined' && google.accounts) {
+                    resolve();
+                } else {
+                    reject(new Error('Google API loaded but not initialized'));
+                }
+            }, 500);
+        };
+        
+        script.onerror = () => {
+            console.error('❌ Failed to load Google API');
+            reject(new Error('Failed to load Google API. Please check internet connection.'));
+        };
+        
+        document.head.appendChild(script);
     });
-
 }
 
-</script>
+// ============================================================
+//  INITIALIZE GOOGLE AUTH
+// ============================================================
+function initGoogleAuth() {
+    return new Promise((resolve, reject) => {
+        console.log('🔧 Initializing Google Auth...');
+        setStatus('loading', 'Initializing Auth...');
+        
+        try {
+            if (typeof google === 'undefined' || !google.accounts) {
+                reject(new Error('Google API not available'));
+                return;
+            }
 
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CONFIG.CLIENT_ID,
+                scope: CONFIG.SCOPES,
+                callback: handleTokenResponse,
+                error_callback: (error) => {
+                    console.error('❌ Token client error:', error);
+                    showError(error.message || 'Authentication failed');
+                    setLoading(false);
+                    setStatus('error', 'Auth Error');
+                }
+            });
+            
+            console.log('✅ Token client initialized');
+            setStatus('success', 'Ready to sign in');
+            loginBtn.disabled = false;
+            resolve(tokenClient);
+            
+        } catch (error) {
+            console.error('❌ Init error:', error);
+            setStatus('error', 'Init Failed');
+            reject(error);
+        }
+    });
+}
+
+// ============================================================
+//  HANDLE LOGIN
+// ============================================================
+async function handleLogin() {
+    console.log('🔑 Login clicked');
+    
+    hideError();
+    setLoading(true);
+
+    try {
+        if (!tokenClient) {
+            await initGoogleAuth();
+        }
+        
+        console.log('📤 Requesting token...');
+        tokenClient.requestAccessToken({ 
+            prompt: 'consent'
+        });
+        
+    } catch (error) {
+        console.error('❌ Login error:', error);
+        showError(error.message || 'Failed to sign in');
+        setLoading(false);
+        setStatus('error', 'Login Failed');
+    }
+}
+
+// ============================================================
+//  INITIALIZE APP
+// ============================================================
+async function initApp() {
+    console.log('🚀 App starting...');
+    setStatus('loading', 'Starting...');
+    
+    // Check existing session
+    if (checkExistingSession()) {
+        return;
+    }
+
+    try {
+        // Load Google API
+        await loadGoogleAPI();
+        
+        // Initialize Google Auth
+        await initGoogleAuth();
+        
+        console.log('✅ App ready');
+        setStatus('success', 'Ready to sign in');
+        loginBtn.disabled = false;
+        
+    } catch (error) {
+        console.error('❌ Init error:', error);
+        showError(error.message || 'Failed to initialize. Please refresh.');
+        setStatus('error', 'Init Failed');
+        loginBtn.disabled = true;
+    }
+}
+
+// ============================================================
+//  EVENT LISTENERS
+// ============================================================
+loginBtn.addEventListener('click', handleLogin);
+
+// ============================================================
+//  START APP - WITH RETRY
+// ============================================================
+console.log('📱 App starting...');
+
+let initAttempts = 0;
+const maxInitAttempts = 3;
+
+function startApp() {
+    initAttempts++;
+    console.log(`Attempt ${initAttempts} to start app...`);
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+        initApp().catch(err => {
+            console.error('Init failed:', err);
+            if (initAttempts < maxInitAttempts) {
+                console.log(`Retrying in 3 seconds... (${initAttempts}/${maxInitAttempts})`);
+                setTimeout(startApp, 3000);
+            } else {
+                showError('Failed to initialize after multiple attempts. Please refresh.');
+                setStatus('error', 'Init Failed');
+                loginBtn.disabled = true;
+            }
+        });
+    }
+}
+
+startApp();
+
+// Fallback: Force reload Google API after 10 seconds if not loaded
+setTimeout(() => {
+    if (typeof google === 'undefined' || !google.accounts) {
+        console.warn('⚠️ Google API not loaded, attempting reload...');
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+            console.log('✅ Google API reloaded');
+            location.reload();
+        };
+        document.head.appendChild(script);
+    }
+}, 10000);
+
+</script>
 </body>
 </html>
