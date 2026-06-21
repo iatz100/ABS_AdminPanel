@@ -159,6 +159,37 @@
             background: #f8fafc;
             border-radius: 12px;
         }
+        
+        .redirect-info {
+            background: #dbeafe;
+            padding: 0.8rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            color: #1e40af;
+            text-align: left;
+        }
+        .redirect-info code {
+            background: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-top: 0.3rem;
+        }
+        .copy-btn:hover {
+            background: #0f172a;
+        }
     </style>
 </head>
 <body>
@@ -169,6 +200,15 @@
     </div>
     <h1>Blogger Admin</h1>
     <p class="subtitle">Sign in to manage your blog posts</p>
+
+    <!-- Redirect Info -->
+    <div class="redirect-info">
+        <strong>🔧 Add this URI to Google Cloud Console:</strong><br>
+        <code id="redirectUriDisplay">Loading...</code>
+        <br>
+        <button class="copy-btn" onclick="copyRedirectUri()">📋 Copy</button>
+        <br><small>Google Cloud Console → Credentials → OAuth 2.0 Client ID → Authorized redirect URIs</small>
+    </div>
 
     <div id="statusIndicator">
         <span class="status-dot loading" id="statusDot"></span>
@@ -218,6 +258,7 @@ const errorBox = document.getElementById('errorBox');
 const errorText = document.getElementById('errorText');
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
+const redirectUriDisplay = document.getElementById('redirectUriDisplay');
 
 // ============================================================
 //  UTILITY FUNCTIONS
@@ -261,6 +302,24 @@ function setLoading(isLoading) {
 }
 
 // ============================================================
+//  COPY FUNCTION
+// ============================================================
+function copyRedirectUri() {
+    const uri = redirectUriDisplay.textContent;
+    navigator.clipboard.writeText(uri).then(() => {
+        alert('✅ Redirect URI copied to clipboard!');
+    }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = uri;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('✅ Redirect URI copied to clipboard!');
+    });
+}
+
+// ============================================================
 //  CHECK EXISTING SESSION
 // ============================================================
 function checkExistingSession() {
@@ -278,17 +337,32 @@ function checkExistingSession() {
 }
 
 // ============================================================
-//  GOOGLE OAUTH - DIRECT METHOD (POPUP)
+//  GET REDIRECT URI - DYNAMIC
+// ============================================================
+function getRedirectUri() {
+    let currentUrl = window.location.href.split('#')[0];
+    // Remove trailing slash if exists
+    if (currentUrl.endsWith('/')) {
+        currentUrl = currentUrl.slice(0, -1);
+    }
+    console.log('📍 Current URL:', currentUrl);
+    return currentUrl;
+}
+
+// ============================================================
+//  GOOGLE OAUTH
 // ============================================================
 function loginWithGoogle() {
     console.log('🔑 Starting Google Login...');
     setLoading(true);
     hideError();
     
-    // Create the OAuth2 URL
+    const redirectUri = getRedirectUri();
+    console.log('📍 Redirect URI:', redirectUri);
+    
     const authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' + 
         'client_id=' + encodeURIComponent(CONFIG.CLIENT_ID) +
-        '&redirect_uri=' + encodeURIComponent(window.location.origin + '/index.html') +
+        '&redirect_uri=' + encodeURIComponent(redirectUri) +
         '&response_type=token' +
         '&scope=' + encodeURIComponent(CONFIG.SCOPES) +
         '&include_granted_scopes=true' +
@@ -299,7 +373,7 @@ function loginWithGoogle() {
 }
 
 // ============================================================
-//  CHECK FOR ACCESS_TOKEN IN URL (after redirect)
+//  CHECK FOR ACCESS_TOKEN IN URL
 // ============================================================
 function checkUrlForToken() {
     const hash = window.location.hash;
@@ -318,14 +392,30 @@ function checkUrlForToken() {
             localStorage.setItem('blogger_token_expiry', String(expiry));
             
             console.log('✅ Token saved!');
-            console.log('Token:', token.substring(0, 20) + '...');
-            console.log('Expiry:', new Date(expiry).toLocaleString());
-            
-            // Remove hash from URL and redirect
             window.location.href = 'dashboard.html';
             return true;
         }
     }
+    
+    if (hash && hash.includes('error')) {
+        const params = new URLSearchParams(hash.substring(1));
+        const error = params.get('error');
+        const errorDescription = params.get('error_description');
+        console.error('❌ OAuth Error:', error, errorDescription);
+        
+        if (error === 'access_denied') {
+            showError('Access denied. Please try again.');
+        } else if (error === 'redirect_uri_mismatch') {
+            const uri = getRedirectUri();
+            showError(`❌ Redirect URI mismatch!\n\nAdd this to Google Cloud Console:\n${uri}`);
+        } else {
+            showError(errorDescription || error || 'Authentication failed');
+        }
+        setStatus('error', 'Auth Failed');
+        loginBtn.disabled = false;
+        return false;
+    }
+    
     return false;
 }
 
@@ -336,17 +426,17 @@ function initApp() {
     console.log('🚀 App starting...');
     setStatus('loading', 'Starting...');
     
-    // Check for token in URL first
+    const redirectUri = getRedirectUri();
+    redirectUriDisplay.textContent = redirectUri;
+    
     if (checkUrlForToken()) {
         return;
     }
     
-    // Check existing session
     if (checkExistingSession()) {
         return;
     }
     
-    // Ready for login
     setStatus('success', 'Ready to sign in');
     loginBtn.disabled = false;
     console.log('✅ App ready');
